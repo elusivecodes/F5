@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="dist/f5.js"></script>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        class Sketch extends F5 {
+
+            setup() {
+                this.pos = new F5.Vector(300, 200);
+                this.vel = F5.Vector.random().setMag(5);
+                this.radius = 50;
+            }
+
+            update(delta) {
+                this.draw.fillColor('#333');
+                this.draw.rect(0, 0, 600, 400);
+
+                this.draw.fillColor('white');
+                this.draw.strokeWidth(1);
+                this.draw.strokeColor('black');
+                this.draw.ellipse(this.pos.x, this.pos.y, this.radius, this.radius);
+
+                if (this.pos.y - this.radius < 0 || this.pos.y + this.radius > 400) {
+                    this.vel.y *= -1;
+                }
+
+                if (this.pos.x - this.radius < 0 || this.pos.x + this.radius > 600) {
+                    this.vel.x *= -1;
+                }
+
+                this.pos.add(this.vel);
+            }
+
+        }
+
+        const canvas = document.getElementById('canvas');
+        const sketch = new Sketch(canvas);
+    </script>
+</body>
+
+</html>
