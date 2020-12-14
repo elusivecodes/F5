@@ -5,28 +5,32 @@ class Vector {
         this.y = y;
     }
 
-    add(other) {
-        this.x += other.x;
-        this.y += other.y;
+    add(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        this.x += x;
+        this.y += y;
 
         return this;
     }
 
-    angleTo(other) {
-        return other.getHeading() - this.getHeading();
+    angleTo(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        return Math.atan2(y, x) - this.getHeading();
     };
 
     clone() {
         return new this.constructor(this.x, this.y);
     }
 
-    distTo(other) {
-        return Math.hypot(other.x - this.x, other.y - this.y);
+    distTo(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        return Math.hypot(x - this.x, y - this.y);
     }
 
-    dot(other) {
-        this.x *= other.y;
-        this.y *= other.x;
+    dot(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        this.x *= y;
+        this.y *= x;
 
         return this;
     }
@@ -43,6 +47,14 @@ class Vector {
         if (this.getMag() > limit) {
             return this.setMag(limit);
         }
+
+        return this;
+    }
+
+    mult(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        this.x *= x;
+        this.y *= y;
 
         return this;
     }
@@ -76,11 +88,23 @@ class Vector {
         return this;
     }
 
-    sub(other) {
-        this.x -= other.x;
-        this.y -= other.y;
+    sub(...args) {
+        const { x, y } = this.constructor._parse(...args);
+        this.x -= x;
+        this.y -= y;
 
         return this;
+    }
+
+    static _parse(x, y) {
+        if (x instanceof Vector) {
+            y = x.y;
+            x = x.x;
+        } else if (y === undefined) {
+            y = x;
+        }
+
+        return { x, y };
     }
 
     static random() {

@@ -1,11 +1,11 @@
 Object.assign(Canvas.prototype, {
 
-    arc(x, y, r, a, b, m) {
-        this._context.arc(x, y, r, a, b, m);
+    arc(x, y, radius, startAngle, endAngle, antiClockwise) {
+        this._context.arc(x, y, radius, startAngle, endAngle, antiClockwise);
     },
 
-    arcTo(x1, y1, x2, y2, r) {
-        this._context.arcTo(x1, y1, x2, y2, r);
+    arcTo(x1, y1, x2, y2, radius) {
+        this._context.arcTo(x1, y1, x2, y2, radius);
     },
 
     begin() {
@@ -30,8 +30,12 @@ Object.assign(Canvas.prototype, {
         }
     },
 
-    line(x, y) {
-        this._context.lineTo(x, y);
+    line(x1, y1, x2, y2) {
+        this.begin();
+        this._context.moveTo(x1, y1);
+        this._context.lineTo(x2, y2);
+        this.close();
+        this.end();
     },
 
     move(x, y) {

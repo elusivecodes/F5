@@ -1,5 +1,16 @@
 Object.assign(Canvas.prototype, {
 
+    background(color) {
+        this.fillColor(color);
+        this.begin();
+        this._context.rect(0, 0, this.width, this.height);
+        this.end();
+    },
+
+    clear() {
+        this._context.clearRect(0, 0, this.width, this.height);
+    },
+
     fillColor(color) {
         this._fill = true;
         this._context.fillStyle = color;
@@ -7,22 +18,17 @@ Object.assign(Canvas.prototype, {
 
     noFill() {
         this._fill = false;
+        this._context.fillStyle = '#000';
     },
 
     noShadow() {
         this._shadow = false;
+        this._context.shadowColor = 'rgba(0,0,0,0)';
     },
 
     noStroke() {
         this._stroke = false;
-    },
-
-    rotate(angle) {
-        this._context.rotate(angle);
-    },
-
-    scale(width, height) {
-        this._context.scale(width, height);
+        this._context.strokeStyle = '#000';
     },
 
     shadowBlur(amount) {
@@ -46,10 +52,6 @@ Object.assign(Canvas.prototype, {
 
     strokeWidth(width) {
         this._context.lineWidth = width;
-    },
-
-    translate(x, y) {
-        this._context.translate(x, y);
     }
 
 });

@@ -9,25 +9,18 @@
 </head>
 
 <body>
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" tabindex="1"></canvas>
     <script>
         class Sketch extends F5 {
 
             setup() {
                 this.pos = new F5.Vector(300, 200);
-                this.vel = F5.Vector.random().setMag(5);
+                this.vel = F5.Vector.random().setMag(10);
                 this.radius = 50;
+                this.draw._rectMode = 'CENTER';
             }
 
             update(delta) {
-                this.draw.fillColor('#333');
-                this.draw.rect(0, 0, 600, 400);
-
-                this.draw.fillColor('white');
-                this.draw.strokeWidth(1);
-                this.draw.strokeColor('black');
-                this.draw.ellipse(this.pos.x, this.pos.y, this.radius, this.radius);
-
                 if (this.pos.y - this.radius < 0 || this.pos.y + this.radius > 400) {
                     this.vel.y *= -1;
                 }
@@ -37,6 +30,32 @@
                 }
 
                 this.pos.add(this.vel);
+                this.vel.mult(0.999);
+
+                this.draw.background('#333');
+
+                this.draw.noStroke();
+                this.draw.fillColor('white');
+                this.draw.circle(this.pos.x, this.pos.y, this.radius);
+
+                if (this.startPos) {
+                    const currentPos = this.input.mousePos();
+                    this.pos = currentPos.clone();
+                    this.draw.strokeColor('white');
+                    this.draw.strokeWidth(1);
+                    this.draw.line(currentPos.x, currentPos.y, this.startPos.x, this.startPos.y);
+                }
+            }
+
+            onMouseDown() {
+                this.startPos = this.input.mousePos();
+            }
+
+            onMouseUp() {
+                const currentPos = this.input.mousePos();
+                this.vel = this.startPos.sub(currentPos);
+                this.vel.limit(50);
+                this.startPos = null;
             }
 
         }
