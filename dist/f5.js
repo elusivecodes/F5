@@ -16,33 +16,83 @@
 
     class Canvas {
 
-        constructor(f5, width = 600, height = 400) {
-            this._f5 = f5;
-            this._node = this._f5._node;
-            this._context = this._f5._node.getContext('2d');
+        constructor(node, width = 600, height = 400, settings) {
+            this._node = node;
+            this._context = this._node.getContext('2d');
+
+            this._settings = {
+                fill: false,
+                stroke: false,
+                shadow: false,
+                font: 'sans-serif',
+                fontSize: 10,
+                fontWeight: null,
+                rectMode: null,
+                ellipseMode: null,
+                ...settings
+            };
 
             this._states = [];
-
-            this._fill = false;
-            this._stroke = false;
-            this._shadow = false;
-
-            this._font = 'sans-serif';
-            this._fontSize = 10;
-            this._fontWeight = null;
-
-            this._rectMode = false;
-            this._ellipseMode = false;
+            this._hasPath = false;
 
             this.resize(width, height);
         }
 
-        composite(image) {
-            const current = this.getImage(0, 0, this.width, this.height);
+        applyMatrix(a, b, c, d, e, f) {
+            this._context.transform(a, b, c, d, e, f);
+        }
 
-            current.data = current.data.map((pixel, i) => pixel + image.data[i]);
+        background(color) {
+            this.fillColor(color);
+            this.begin();
+            this._context.rect(0, 0, this.width, this.height);
+            this.end();
+        }
 
-            this.putImage(current, 0, 0);
+        clear() {
+            this._context.clearRect(0, 0, this.width, this.height);
+        }
+
+        createPath(x = 0, y = 0) {
+            return new Path(this._context, x, y, this.width, this.height);
+        }
+
+        // createShape(callback) {
+        //     const canvas = document.createElement('canvas');
+        //     const draw = new this.constructor(canvas, this.width, this.height, this._settings);
+        //     draw._context.fillStyle = this._context.fillStyle;
+        //     draw._context.font = this._context.font;
+        //     draw._context.lineWidth = this._context.lineWidth;
+        //     draw._context.shadowBlur = this._context.shadowBlur;
+        //     draw._context.shadowColor = this._context.shadowColor;
+        //     draw._context.shadowOffsetX = this._context.shadowOffsetX;
+        //     draw._context.shadowOffsetY = this._context.shadowOffsetY;
+        //     draw._context.strokeStyle = this._context.strokeStyle;
+        //     draw._context.textAlign = this._context.textAlign;
+        //     callback(draw);
+        //     this.drawImage(canvas, 0, 0);
+        // }
+
+        drawImage(image, x, y) {
+            this._context.drawImage(image, x, y);
+        }
+
+        drawPath(path) {
+            const image = path.buildImage({
+                fillStyle: this._context.fillStyle,
+                lineWidth: this._context.lineWidth,
+                strokeStyle: this._context.strokeStyle
+            });
+            this.drawImage(image, 0, 0);
+        }
+
+        erase(callback) {
+            this.push();
+            this.reset();
+            this.fillColor('black');
+            this._context.globalCompositeOperation = 'destination-out';
+            callback();
+            this.pop();
         }
 
         getImage(x, y, w, h) {
@@ -50,19 +100,12 @@
         }
 
         pop() {
-            const state = this._states.pop();
-            Object.assign(this, state);
+            this._settings = this._states.pop();
             this._context.restore();
         }
 
         push() {
-            this._states.push({
-                _fill: this._fill,
-                _stroke: this._stroke,
-                _shadow: this._shadow,
-                _rectMode: this._rectMode,
-                _ellipseMode: this._ellipseMode
-            });
+            this._states.push(this._settings);
             this._context.save();
         }
 
@@ -74,6 +117,26 @@
             }
         }
 
+        reset() {
+            this._path = [];
+
+            this._fill = false;
+            this._stroke = false;
+            this._shadow = false;
+
+            this._font = 'sans-serif';
+            this._fontSize = 10;
+            this._fontWeight = null;
+
+            this._rectMode = false;
+
+            this.resetMatrix();
+        }
+
+        resetMatrix() {
+            this._context.resetTransform();
+        }
+
         resize(w, h) {
             this.width = w;
             this.height = h;
@@ -81,8 +144,16 @@
             this._node.setAttribute('height', this.height);
         }
 
-        rotate(angle) {
-            this._context.rotate(angle);
+        rotateX(angle) {
+            this._context.rotateX(angle);
+        }
+
+        rotateY(angle) {
+            this._context.rotateY(angle);
+        }
+
+        rotateZ(angle) {
+            this._context.rotateZ(angle);
         }
 
         scale(width, height) {
@@ -98,34 +169,23 @@
 
     Object.assign(Canvas.prototype, {
 
-        background(color) {
-            this.fillColor(color);
-            this.begin();
-            this._context.rect(0, 0, this.width, this.height);
-            this.end();
-        },
-
-        clear() {
-            this._context.clearRect(0, 0, this.width, this.height);
-        },
-
         fillColor(color) {
-            this._fill = true;
+            this._settings.fill = true;
             this._context.fillStyle = color;
         },
 
         noFill() {
-            this._fill = false;
+            this._settings.fill = false;
             this._context.fillStyle = '#000';
         },
 
         noShadow() {
-            this._shadow = false;
+            this._settings.shadow = false;
             this._context.shadowColor = 'rgba(0,0,0,0)';
         },
 
         noStroke() {
-            this._stroke = false;
+            this._settings.shadow = false;
             this._context.strokeStyle = '#000';
         },
 
@@ -134,7 +194,7 @@
         },
 
         shadowColor(color) {
-            this._shadow = true;
+            this._settings.shadow = true;
             this._context.shadowColor = color;
         },
 
@@ -144,7 +204,7 @@
         },
 
         strokeColor(color) {
-            this._stroke = true;
+            this._settings.shadow = true;
             this._context.strokeStyle = color;
         },
 
@@ -174,50 +234,44 @@
 
     Object.assign(Canvas.prototype, {
 
-        arc(x, y, radius, startAngle, endAngle, antiClockwise) {
-            this._context.arc(x, y, radius, startAngle, endAngle, antiClockwise);
+        begin() {
+            this._context.beginPath();
+            this._hasPath = false;
         },
 
-        arcTo(x1, y1, x2, y2, radius) {
+        bezierVertex(cx1, cy1, cx2, cy2, x, y) {
+            this._context.bezierCurveTo(cx1, cy1, cx2, cy2, x, y);
+        },
+
+        curveVertex(x1, y1, x2, y2, radius) {
             this._context.arcTo(x1, y1, x2, y2, radius);
         },
 
-        begin() {
-            this._context.beginPath();
-        },
+        end(close = false) {
+            if (close) {
+                this._context.closePath();
+            }
 
-        bezier(x1, y1, x2, y2, x3, y3) {
-            this._context.bezierCurveTo(x1, y1, x2, y2, x3, y3);
-        },
-
-        close() {
-            this._context.closePath();
-        },
-
-        end() {
-            if (this._fill) {
+            if (this._settings.fill) {
                 this._context.fill();
             }
 
-            if (this._stroke) {
+            if (this._settings.stroke) {
                 this._context.stroke();
             }
         },
 
-        line(x1, y1, x2, y2) {
-            this.begin();
-            this._context.moveTo(x1, y1);
-            this._context.lineTo(x2, y2);
-            this.close();
-            this.end();
+        quadraticVertex(cx, cy, x, y) {
+            this._context.quadraticCurveTo(cx, cy, x, y);
         },
 
-        move(x, y) {
-            this._context.moveTo(x, y);
-        },
-
-        quadratic(x1, y1, x2, y2) {
-            this._context.quadraticCurveTo(x1, y1, x2, y2);
+        vertex(x, y) {
+            if (!this._hasPath) {
+                this._context.moveTo(x, y);
+            } else {
+                this._context.lineTo(x, y);
+                this._hasPath = true;
+            }
         }
 
     });
@@ -225,15 +279,35 @@
 
     Object.assign(Canvas.prototype, {
 
-        circle(x, y, radius) {
-            return this.ellipse(x, y, radius, radius);
+        arc(x, y, radius, startAngle, endAngle) {
+            this._context.beginPath();
+            this._context.arc(x, y, radius, startAngle, endAngle);
+            this._context.closePath();
+            this.end();
         },
 
-        ellipse(x, y, radiusX, radiusY, angle = 0) {
-            this.begin();
-            this._context.ellipse(x, y, radiusX, radiusY, angle, 0, Math.PI * 2);
-            this.close();
+        circle(x, y, diameter) {
+            return this.ellipse(x, y, diameter, diameter);
+        },
+
+        ellipse(x, y, width, height, angle = 0) {
+            this._context.beginPath();
+            this._context.ellipse(x, y, width / 2, height / 2, angle, 0, Math.PI * 2);
+            this._context.closePath();
             this.end();
+        },
+
+        line(x1, y1, x2, y2) {
+            this._context.beginPath();
+            this._context.moveTo(x1, y1);
+            this._context.lineTo(x2, y2);
+            this._context.stroke();
+        },
+
+        point(x, y) {
+            this._context.beginPath();
+            this._context.moveTo(x, y);
+            this._context.stroke();
         },
 
         rect(x, y, width, height) {
@@ -242,9 +316,9 @@
                 y -= height / 2;
             }
 
-            this.begin();
+            this._context.beginPath();
             this._context.rect(x, y, width, height);
-            this.close();
+            this._context.closePath();
             this.end();
         },
 
@@ -272,23 +346,23 @@
         text(text, x, y) {
             let font = [];
 
-            if (this._fontWeight) {
-                font.push(this._fontWeight);
+            if (this._settings.fontWeight) {
+                font.push(this._settings.fontWeight);
             }
 
-            if (this._fontSize) {
-                font.push(`${this._fontSize}px`);
+            if (this._settings.fontSize) {
+                font.push(`${this._settings.fontSize}px`);
             }
 
             font.push(this._font);
 
             this._context.font = font.join(' ');
 
-            if (this._fill) {
+            if (this._settings.fill) {
                 this._context.fillText(text, x, y);
             }
 
-            if (this._stroke) {
+            if (this._settings.stroke) {
                 this._context.strokeText(text, x, y);
             }
         },
@@ -305,9 +379,7 @@
         constructor(node, width, height) {
             this._node = node;
 
-            this._node.setAttribute('tabindex', '1');
-            this._node.style.setProperty('outline', '0');
-            this.draw = new Canvas(this, width, height);
+            this.canvas = new Canvas(this._node, width, height);
             this.input = new Input(this);
 
             const start = Date.now();
@@ -337,6 +409,9 @@
 
         constructor(f5) {
             this._f5 = f5;
+
+            this._f5._node.setAttribute('tabindex', '1');
+            this._f5._node.style.setProperty('outline', '0');
 
             this._mouseX = null;
             this._mouseY = null;
@@ -432,6 +507,167 @@
         }
 
     }
+
+
+    class Path {
+
+        constructor(context, x, y, width, height) {
+            this._context = context;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+
+            this._path = new Path2D();
+            this._hasVertex = false;
+            this._contours = [];
+        }
+
+        add(path) {
+            this._path.addPath(path);
+        }
+
+        bezierVertex(cx1, cy1, cx2, cy2, x, y) {
+            this._path.bezierCurveTo(cx1, cy1, cx2, cy2, x, y);
+        }
+
+        buildImage(options) {
+            const canvas = document.createElement('canvas');
+            canvas.setAttribute('width', this.width);
+            canvas.setAttribute('height', this.height);
+
+            const context = canvas.getContext('2d');
+            Object.assign(context, options);
+
+            context.translate(this.x, this.y);
+            context.fill(this._path);
+            context.translate(-this.x, -this.y);
+
+            context.globalCompositeOperation = 'destination-out';
+            for (const contour of this._contours) {
+                const contourImage = contour.buildImage({
+                    fillStyle: '#000'
+                });
+                context.drawImage(contourImage, 0, 0);
+            }
+
+            return canvas;
+        }
+
+        close() {
+            this._path.closePath();
+        }
+
+        containsPoint(x, y) {
+            if (this._contours.some(contour => contour.containsPoint(x, y))) {
+                return false;
+            }
+
+            return this._context.isPointInPath(this._path, x, y);
+        }
+
+        createContour(x = 0, y = 0) {
+            const path = new Path(this._context, this.x + x, this.y + y, this.width, this.height);
+            this._contours.push(path);
+            return path;
+        }
+
+        curveVertex(x1, y1, x2, y2, radius) {
+            this._path.arcTo(x1, y1, x2, y2, radius);
+        }
+
+        quadraticVertex(cx, cy, x, y) {
+            this._path.quadraticCurveTo(cx, cy, x, y);
+        }
+
+        vertex(x, y) {
+            if (!this._hasVertex) {
+                this._path.moveTo(x, y);
+            } else {
+                this._path.lineTo(x, y);
+                this._hasVertex = true;
+            }
+        }
+
+        contains(path) {
+            if (this._contours.some(contour => contour.intersects(path))) {
+                return false;
+            }
+
+            const pathPixels = path._getPixels();
+            const overlapPixels = this._getOverlap(path);
+
+            return pathPixels.every((pixel, i) => !!pixel == !!overlapPixels[i]);
+        }
+
+        intersects(path) {
+            if (this._contours.some(contour => contour.contains(path))) {
+                return false;
+            }
+
+            return this._getOverlap(path).some(pixel => pixel);
+        }
+
+        _getPixels() {
+            const canvas = document.createElement('canvas');
+            canvas.setAttribute('width', this.width);
+            canvas.setAttribute('height', this.height);
+
+            const context = canvas.getContext('2d');
+            context.translate(this.x, this.y);
+            context.fill(this._path);
+
+            const data = context.getImageData(0, 0, this.width, this.height);
+            return new Uint32Array(data.data.buffer);
+        }
+
+        _getOverlap(path) {
+            const canvas = document.createElement('canvas');
+            canvas.setAttribute('width', this.width);
+            canvas.setAttribute('height', this.height);
+
+            const context = canvas.getContext('2d');
+            context.translate(this.x, this.y);
+            context.clip(this._path);
+            context.translate(-this.x, -this.y);
+            context.translate(path.x, path.y);
+            context.fill(path._path);
+
+            const data = context.getImageData(0, 0, this.width, this.height);
+            return new Uint32Array(data.data.buffer);
+        }
+
+    }
+
+
+    Object.assign(Path.prototype, {
+
+        arc(x, y, radius, startAngle, endAngle) {
+            this._path.arc(x, y, radius, startAngle, endAngle);
+        },
+
+        circle(x, y, diameter) {
+            return this.ellipse(x, y, diameter, diameter);
+        },
+
+        ellipse(x, y, width, height, angle = 0) {
+            this._path.ellipse(x, y, width / 2, height / 2, angle, 0, Math.PI * 2);
+        },
+
+        line(x1, y1, x2, y2) {
+            this._path.moveTo(x1, y1);
+            this._path.lineTo(x2, y2);
+        },
+
+        rect(x, y, width, height) {
+            this._path.rect(x, y, width, height);
+        },
+
+        square(x, y, size) {
+            this.rect(x, y, size, size);
+        }
+
+    });
 
 
     class Vector {
@@ -550,6 +786,8 @@
     }
 
     F5.Canvas = Canvas;
+    F5.Input = Input;
+    F5.Path = Path;
     F5.Vector = Vector;
 
     return {

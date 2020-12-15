@@ -1,49 +1,43 @@
 Object.assign(Canvas.prototype, {
 
-    arc(x, y, radius, startAngle, endAngle, antiClockwise) {
-        this._context.arc(x, y, radius, startAngle, endAngle, antiClockwise);
+    begin() {
+        this._context.beginPath();
+        this._hasPath = false;
     },
 
-    arcTo(x1, y1, x2, y2, radius) {
+    bezierVertex(cx1, cy1, cx2, cy2, x, y) {
+        this._context.bezierCurveTo(cx1, cy1, cx2, cy2, x, y);
+    },
+
+    curveVertex(x1, y1, x2, y2, radius) {
         this._context.arcTo(x1, y1, x2, y2, radius);
     },
 
-    begin() {
-        this._context.beginPath();
-    },
+    end(close = false) {
+        if (close) {
+            this._context.closePath();
+        }
 
-    bezier(x1, y1, x2, y2, x3, y3) {
-        this._context.bezierCurveTo(x1, y1, x2, y2, x3, y3);
-    },
-
-    close() {
-        this._context.closePath();
-    },
-
-    end() {
-        if (this._fill) {
+        if (this._settings.fill) {
             this._context.fill();
         }
 
-        if (this._stroke) {
+        if (this._settings.stroke) {
             this._context.stroke();
         }
     },
 
-    line(x1, y1, x2, y2) {
-        this.begin();
-        this._context.moveTo(x1, y1);
-        this._context.lineTo(x2, y2);
-        this.close();
-        this.end();
+    quadraticVertex(cx, cy, x, y) {
+        this._context.quadraticCurveTo(cx, cy, x, y);
     },
 
-    move(x, y) {
-        this._context.moveTo(x, y);
-    },
-
-    quadratic(x1, y1, x2, y2) {
-        this._context.quadraticCurveTo(x1, y1, x2, y2);
+    vertex(x, y) {
+        if (!this._hasPath) {
+            this._context.moveTo(x, y);
+        } else {
+            this._context.lineTo(x, y);
+            this._hasPath = true;
+        }
     }
 
 });

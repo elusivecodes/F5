@@ -13,49 +13,43 @@
     <script>
         class Sketch extends F5 {
 
-            setup() {
-                this.pos = new F5.Vector(300, 200);
-                this.vel = F5.Vector.random().setMag(10);
-                this.radius = 50;
-                this.draw._rectMode = 'CENTER';
-            }
+            update() {
+                this.canvas.background('#333');
 
-            update(delta) {
-                if (this.pos.y - this.radius < 0 || this.pos.y + this.radius > 400) {
-                    this.vel.y *= -1;
+                // Path
+
+                const path = this.canvas.createPath();
+                path.ellipse(300, 200, 300, 200);
+
+                const contour = path.createContour();
+                contour.ellipse(300, 200, 150, 150);
+
+                const innerContour = contour.createContour();
+                innerContour.rect(250, 150, 100, 100);
+
+                // Test
+
+                const mousePos = this.input.mousePos();
+
+                let fillColor = 'blue';
+                let testPath;
+
+                if (mousePos) {
+                    testPath = this.canvas.createPath(mousePos.x, mousePos.y);
+                    testPath.ellipse(0, 0, 10, 10)
+
+                    if (path.intersects(testPath)) {
+                        fillColor = 'red';
+                    }
                 }
 
-                if (this.pos.x - this.radius < 0 || this.pos.x + this.radius > 600) {
-                    this.vel.x *= -1;
+                this.canvas.fillColor(fillColor);
+                this.canvas.drawPath(path);
+
+                if (testPath) {
+                    this.canvas.fillColor('white');
+                    this.canvas.drawPath(testPath);
                 }
-
-                this.pos.add(this.vel);
-                this.vel.mult(0.999);
-
-                this.draw.background('#333');
-
-                this.draw.noStroke();
-                this.draw.fillColor('white');
-                this.draw.circle(this.pos.x, this.pos.y, this.radius);
-
-                if (this.startPos) {
-                    const currentPos = this.input.mousePos();
-                    this.pos = currentPos.clone();
-                    this.draw.strokeColor('white');
-                    this.draw.strokeWidth(1);
-                    this.draw.line(currentPos.x, currentPos.y, this.startPos.x, this.startPos.y);
-                }
-            }
-
-            onMouseDown() {
-                this.startPos = this.input.mousePos();
-            }
-
-            onMouseUp() {
-                const currentPos = this.input.mousePos();
-                this.vel = this.startPos.sub(currentPos);
-                this.vel.limit(50);
-                this.startPos = null;
             }
 
         }

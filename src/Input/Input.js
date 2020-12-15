@@ -3,6 +3,9 @@ class Input {
     constructor(f5) {
         this._f5 = f5;
 
+        this._f5._node.setAttribute('tabindex', '1');
+        this._f5._node.style.setProperty('outline', '0');
+
         this._mouseX = null;
         this._mouseY = null;
         this._mouseDown = {};

@@ -3,9 +3,7 @@ class F5 {
     constructor(node, width, height) {
         this._node = node;
 
-        this._node.setAttribute('tabindex', '1');
-        this._node.style.setProperty('outline', '0');
-        this.draw = new Canvas(this, width, height);
+        this.canvas = new Canvas(this._node, width, height);
         this.input = new Input(this);
 
         const start = Date.now();

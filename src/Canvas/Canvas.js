@@ -1,32 +1,82 @@
 class Canvas {
 
-    constructor(f5, width = 600, height = 400) {
-        this._f5 = f5;
-        this._node = this._f5._node;
-        this._context = this._f5._node.getContext('2d');
+    constructor(node, width = 600, height = 400, settings) {
+        this._node = node;
+        this._context = this._node.getContext('2d');
+
+        this._settings = {
+            fill: false,
+            stroke: false,
+            shadow: false,
+            font: 'sans-serif',
+            fontSize: 10,
+            fontWeight: null,
+            rectMode: null,
+            ellipseMode: null,
+            ...settings
+        };
 
         this._states = [];
-
-        this._fill = false;
-        this._stroke = false;
-        this._shadow = false;
-
-        this._font = 'sans-serif';
-        this._fontSize = 10;
-        this._fontWeight = null;
-
-        this._rectMode = false;
-        this._ellipseMode = false;
+        this._hasPath = false;
 
         this.resize(width, height);
     }
 
-    composite(image) {
-        const current = this.getImage(0, 0, this.width, this.height);
+    applyMatrix(a, b, c, d, e, f) {
+        this._context.transform(a, b, c, d, e, f);
+    }
 
-        current.data = current.data.map((pixel, i) => pixel + image.data[i]);
+    background(color) {
+        this.fillColor(color);
+        this.begin();
+        this._context.rect(0, 0, this.width, this.height);
+        this.end();
+    }
 
-        this.putImage(current, 0, 0);
+    clear() {
+        this._context.clearRect(0, 0, this.width, this.height);
+    }
+
+    createPath(x = 0, y = 0) {
+        return new Path(this._context, x, y, this.width, this.height);
+    }
+
+    // createShape(callback) {
+    //     const canvas = document.createElement('canvas');
+    //     const draw = new this.constructor(canvas, this.width, this.height, this._settings);
+    //     draw._context.fillStyle = this._context.fillStyle;
+    //     draw._context.font = this._context.font;
+    //     draw._context.lineWidth = this._context.lineWidth;
+    //     draw._context.shadowBlur = this._context.shadowBlur;
+    //     draw._context.shadowColor = this._context.shadowColor;
+    //     draw._context.shadowOffsetX = this._context.shadowOffsetX;
+    //     draw._context.shadowOffsetY = this._context.shadowOffsetY;
+    //     draw._context.strokeStyle = this._context.strokeStyle;
+    //     draw._context.textAlign = this._context.textAlign;
+    //     callback(draw);
+    //     this.drawImage(canvas, 0, 0);
+    // }
+
+    drawImage(image, x, y) {
+        this._context.drawImage(image, x, y);
+    }
+
+    drawPath(path) {
+        const image = path.buildImage({
+            fillStyle: this._context.fillStyle,
+            lineWidth: this._context.lineWidth,
+            strokeStyle: this._context.strokeStyle
+        });
+        this.drawImage(image, 0, 0);
+    }
+
+    erase(callback) {
+        this.push();
+        this.reset();
+        this.fillColor('black');
+        this._context.globalCompositeOperation = 'destination-out';
+        callback();
+        this.pop();
     }
 
     getImage(x, y, w, h) {
@@ -34,19 +84,12 @@ class Canvas {
     }
 
     pop() {
-        const state = this._states.pop();
-        Object.assign(this, state);
+        this._settings = this._states.pop();
         this._context.restore();
     }
 
     push() {
-        this._states.push({
-            _fill: this._fill,
-            _stroke: this._stroke,
-            _shadow: this._shadow,
-            _rectMode: this._rectMode,
-            _ellipseMode: this._ellipseMode
-        });
+        this._states.push(this._settings);
         this._context.save();
     }
 
@@ -58,6 +101,26 @@ class Canvas {
         }
     }
 
+    reset() {
+        this._path = [];
+
+        this._fill = false;
+        this._stroke = false;
+        this._shadow = false;
+
+        this._font = 'sans-serif';
+        this._fontSize = 10;
+        this._fontWeight = null;
+
+        this._rectMode = false;
+
+        this.resetMatrix();
+    }
+
+    resetMatrix() {
+        this._context.resetTransform();
+    }
+
     resize(w, h) {
         this.width = w;
         this.height = h;
@@ -65,8 +128,16 @@ class Canvas {
         this._node.setAttribute('height', this.height);
     }
 
-    rotate(angle) {
-        this._context.rotate(angle);
+    rotateX(angle) {
+        this._context.rotateX(angle);
+    }
+
+    rotateY(angle) {
+        this._context.rotateY(angle);
+    }
+
+    rotateZ(angle) {
+        this._context.rotateZ(angle);
     }
 
     scale(width, height) {
