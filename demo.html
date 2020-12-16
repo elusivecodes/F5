@@ -13,42 +13,107 @@
     <script>
         class Sketch extends F5 {
 
+            setup() {
+                this.pos = new F5.Vector(300, 200);
+                this.vel = F5.Vector.random().mult(.5);
+
+                this.shape1 = this.canvas.createShape();
+                this.shape1.layer(path => {
+                    path.vertex(50, 50);
+                    path.vertex(100, 150);
+                    path.vertex(200, 50);
+                    path.vertex(550, 350);
+                    path.vertex(250, 200);
+                    path.vertex(100, 350);
+                    path.close();
+                });
+
+                this.shape2 = this.canvas.createShape();
+                this.shape2.layer(path => {
+                    path.ellipse(0, 0, 300, 200);
+                });
+                this.shape2.contour(contour => {
+                    contour.ellipse(0, 0, 150, 150);
+                });
+                this.shape2.layer(path => {
+                    path.triangle(-50, -50, 50, -50, 50, 50);
+                });
+                this.shape2.contour(contour => {
+                    contour.triangle(-100, -50, 100, 25, -100, 55);
+                });
+
+                this.mouseShape = this.canvas.createShape();
+                this.mouseShape.layer(path => {
+                    path.vertex(-15, -15);
+                    path.vertex(0, -5);
+                    path.vertex(15, -15);
+                    path.vertex(0 + 5, 0);
+                    path.vertex(15, 15);
+                    path.vertex(0, 5);
+                    path.vertex(-15, 15);
+                    path.vertex(0 - 5, 0);
+                    path.close();
+                });
+            }
+
             update() {
-                this.canvas.background('#333');
-
-                // Path
-
-                const path = this.canvas.createPath();
-                path.ellipse(300, 200, 300, 200);
-
-                const contour = path.createContour();
-                contour.ellipse(300, 200, 150, 150);
-
-                const innerContour = contour.createContour();
-                innerContour.rect(250, 150, 100, 100);
-
-                // Test
-
                 const mousePos = this.input.mousePos();
 
-                let fillColor = 'blue';
-                let testPath;
-
                 if (mousePos) {
-                    testPath = this.canvas.createPath(mousePos.x, mousePos.y);
-                    testPath.ellipse(0, 0, 10, 10)
+                    this.mouseShape.x = mousePos.x;
+                    this.mouseShape.y = mousePos.y;
+                }
 
-                    if (path.intersects(testPath)) {
-                        fillColor = 'red';
+                this.shape2.x = this.pos.x;
+                this.shape2.y = this.pos.y;
+
+                const bounds1 = this.shape1.getBoundingBox();
+                const bounds2 = this.shape2.getBoundingBox();
+                const mouseBounds = this.mouseShape.getBoundingBox();
+
+                // if (bounds2.top < 0 || bounds2.bottom > 400) {
+                //     this.vel.y *= -1;
+                // }
+
+                // if (bounds2.left < 0 || bounds2.right > 600) {
+                //     this.vel.x *= -1;
+                // }
+
+                // this.pos.add(this.vel);
+
+                let fill1 = 'rgba(0, 255, 0, .5)';
+                let fill2 = 'rgba(0, 0, 255, .5)';
+                if (mousePos) {
+                    if (this.shape1.intersects(this.mouseShape)) {
+                        fill1 = 'rgba(255, 255, 0, .5)';
+                    }
+
+                    if (this.shape2.intersects(this.mouseShape)) {
+                        fill2 = 'rgba(255, 0, 0, .5)';
                     }
                 }
 
-                this.canvas.fillColor(fillColor);
-                this.canvas.drawPath(path);
+                this.canvas.background('#333');
 
-                if (testPath) {
-                    this.canvas.fillColor('white');
-                    this.canvas.drawPath(testPath);
+                this.canvas.noFill();
+                this.canvas.strokeColor('rgba(0, 100, 100, .5)');
+                this.canvas.strokeWidth(1);
+                this.canvas.rect(bounds2.x, bounds2.y, bounds2.width, bounds2.height);
+                this.canvas.rect(bounds1.x, bounds1.y, bounds1.width, bounds1.height);
+
+                if (mousePos) {
+                    this.canvas.rect(mouseBounds.x, mouseBounds.y, mouseBounds.width, mouseBounds.height);
+                }
+
+                this.canvas.fillColor(fill1);
+                this.canvas.drawShape(this.shape1);
+
+                this.canvas.fillColor(fill2);
+                this.canvas.drawShape(this.shape2);
+
+                if (mousePos) {
+                    this.canvas.fillColor('rgba(255, 255, 255, .5)');
+                    this.canvas.drawShape(this.mouseShape);
                 }
             }
 

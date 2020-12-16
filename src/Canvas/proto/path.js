@@ -2,7 +2,7 @@ Object.assign(Canvas.prototype, {
 
     begin() {
         this._context.beginPath();
-        this._hasPath = false;
+        this._hasVertex = false;
     },
 
     bezierVertex(cx1, cy1, cx2, cy2, x, y) {
@@ -32,11 +32,11 @@ Object.assign(Canvas.prototype, {
     },
 
     vertex(x, y) {
-        if (!this._hasPath) {
+        if (!this._hasVertex) {
             this._context.moveTo(x, y);
+            this._hasVertex = true;
         } else {
             this._context.lineTo(x, y);
-            this._hasPath = true;
         }
     }
 

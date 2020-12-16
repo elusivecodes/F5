@@ -16,24 +16,18 @@
 
     class Canvas {
 
-        constructor(node, width = 600, height = 400, settings) {
+        constructor(node, width = 600, height = 400, settings = {}) {
             this._node = node;
             this._context = this._node.getContext('2d');
 
-            this._settings = {
-                fill: false,
-                stroke: false,
-                shadow: false,
-                font: 'sans-serif',
-                fontSize: 10,
-                fontWeight: null,
-                rectMode: null,
-                ellipseMode: null,
-                ...settings
-            };
+            this.reset();
+
+            if (settings) {
+                Object.assign(this._settings, settings);
+            }
 
             this._states = [];
-            this._hasPath = false;
+            this._hasVertex = false;
 
             this.resize(width, height);
         }
@@ -53,45 +47,46 @@
             this._context.clearRect(0, 0, this.width, this.height);
         }
 
-        createPath(x = 0, y = 0) {
-            return new Path(this._context, x, y, this.width, this.height);
+        createShape() {
+            return new Shape(this._context);
         }
 
-        // createShape(callback) {
-        //     const canvas = document.createElement('canvas');
-        //     const draw = new this.constructor(canvas, this.width, this.height, this._settings);
-        //     draw._context.fillStyle = this._context.fillStyle;
-        //     draw._context.font = this._context.font;
-        //     draw._context.lineWidth = this._context.lineWidth;
-        //     draw._context.shadowBlur = this._context.shadowBlur;
-        //     draw._context.shadowColor = this._context.shadowColor;
-        //     draw._context.shadowOffsetX = this._context.shadowOffsetX;
-        //     draw._context.shadowOffsetY = this._context.shadowOffsetY;
-        //     draw._context.strokeStyle = this._context.strokeStyle;
-        //     draw._context.textAlign = this._context.textAlign;
-        //     callback(draw);
-        //     this.drawImage(canvas, 0, 0);
-        // }
+        createPath() {
+            return new Path(this._context);
+        }
 
-        drawImage(image, x, y) {
+        drawImage(image, x = 0, y = 0) {
             this._context.drawImage(image, x, y);
         }
 
-        drawPath(path) {
-            const image = path.buildImage({
+        drawPath(path, x = 0, y = 0) {
+            const boundingBox = path.getBoundingBox();
+            const { canvas } = path.render({
                 fillStyle: this._context.fillStyle,
                 lineWidth: this._context.lineWidth,
                 strokeStyle: this._context.strokeStyle
             });
-            this.drawImage(image, 0, 0);
+            this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
+        }
+
+        drawShape(shape, x = 0, y = 0) {
+            const boundingBox = shape.getBoundingBox();
+            const { canvas } = shape.render({
+                fillStyle: this._context.fillStyle,
+                lineWidth: this._context.lineWidth,
+                strokeStyle: this._context.strokeStyle
+            });
+            this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
         }
 
         erase(callback) {
             this.push();
             this.reset();
-            this.fillColor('black');
+            const path = this.createPath();
+            callback(path);
             this._context.globalCompositeOperation = 'destination-out';
-            callback();
+            this.fillColor('#000');
+            this.drawPath(path);
             this.pop();
         }
 
@@ -118,17 +113,14 @@
         }
 
         reset() {
-            this._path = [];
-
-            this._fill = false;
-            this._stroke = false;
-            this._shadow = false;
-
-            this._font = 'sans-serif';
-            this._fontSize = 10;
-            this._fontWeight = null;
-
-            this._rectMode = false;
+            this._settings = {
+                fill: false,
+                stroke: false,
+                shadow: false,
+                font: 'sans-serif',
+                fontSize: 10,
+                fontWeight: null
+            };
 
             this.resetMatrix();
         }
@@ -156,8 +148,12 @@
             this._context.rotateZ(angle);
         }
 
-        scale(width, height) {
-            this._context.scale(width, height);
+        scale(x, y = null) {
+            if (y === undefined) {
+                y = x;
+            }
+
+            this._context.scale(x, y);
         }
 
         translate(x, y) {
@@ -204,7 +200,7 @@
         },
 
         strokeColor(color) {
-            this._settings.shadow = true;
+            this._settings.stroke = true;
             this._context.strokeStyle = color;
         },
 
@@ -236,7 +232,7 @@
 
         begin() {
             this._context.beginPath();
-            this._hasPath = false;
+            this._hasVertex = false;
         },
 
         bezierVertex(cx1, cy1, cx2, cy2, x, y) {
@@ -266,11 +262,11 @@
         },
 
         vertex(x, y) {
-            if (!this._hasPath) {
+            if (!this._hasVertex) {
                 this._context.moveTo(x, y);
+                this._hasVertex = true;
             } else {
                 this._context.lineTo(x, y);
-                this._hasPath = true;
             }
         }
 
@@ -282,18 +278,30 @@
         arc(x, y, radius, startAngle, endAngle) {
             this._context.beginPath();
             this._context.arc(x, y, radius, startAngle, endAngle);
-            this._context.closePath();
+            this.end();
+        },
+
+        bezier(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._context.beginPath();
+            this._context.moveTo(x1, y1);
+            this._context.bezierCurveTo(x2, y2, x3, y3, x4, y4);
             this.end();
         },
 
         circle(x, y, diameter) {
-            return this.ellipse(x, y, diameter, diameter);
+            this.ellipse(x, y, diameter, diameter);
+        },
+
+        curve(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._context.beginPath();
+            this._context.moveTo(x1, y1);
+            this._context.arcTo(x2, y2, x3, y3, x4, y4);
+            this.end();
         },
 
         ellipse(x, y, width, height, angle = 0) {
             this._context.beginPath();
             this._context.ellipse(x, y, width / 2, height / 2, angle, 0, Math.PI * 2);
-            this._context.closePath();
             this.end();
         },
 
@@ -310,20 +318,31 @@
             this._context.stroke();
         },
 
-        rect(x, y, width, height) {
-            if (this._rectMode === 'CENTER') {
-                x -= width / 2;
-                y -= height / 2;
-            }
+        quad(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._context.beginPath();
+            this._context.moveTo(x1, y1);
+            this._context.lineTo(x2, y2);
+            this._context.lineTo(x3, y3);
+            this._context.lineTo(x4, y4);
+            this.end(true);
+        },
 
+        rect(x, y, width, height) {
             this._context.beginPath();
             this._context.rect(x, y, width, height);
-            this._context.closePath();
             this.end();
         },
 
         square(x, y, size) {
             this.rect(x, y, size, size);
+        },
+
+        triangle(x1, y1, x2, y2, x3, y3) {
+            this._context.beginPath();
+            this._context.moveTo(x1, y1);
+            this._context.lineTo(x2, y2);
+            this._context.lineTo(x3, y3);
+            this.end(true);
         }
 
     });
@@ -378,6 +397,7 @@
 
         constructor(node, width, height) {
             this._node = node;
+            this._loop = true;
 
             this.canvas = new Canvas(this._node, width, height);
             this.input = new Input(this);
@@ -385,17 +405,23 @@
             const start = Date.now();
 
             const run = _ => {
-                window.requestAnimationFrame(_ => {
-                    const now = Date.now();
-                    const delta = (now - start) / 1000;
-                    this.update(delta);
-                    run();
-                });
+                const now = Date.now();
+                const delta = (now - start) / 1000;
+                this.update(delta);
+                if (this._loop) {
+                    window.requestAnimationFrame(_ => {
+                        run();
+                    });
+                }
             };
 
             this.setup();
 
             run();
+        }
+
+        noLoop() {
+            this._loop = false;
         }
 
         setup() { }
@@ -511,130 +537,60 @@
 
     class Path {
 
-        constructor(context, x, y, width, height) {
+        constructor(context, x = 0, y = 0) {
             this._context = context;
             this.x = x;
             this.y = y;
-            this.width = width;
-            this.height = height;
 
             this._path = new Path2D();
             this._hasVertex = false;
-            this._contours = [];
+
+            this._bounding = {
+                top: Number.POSITIVE_INFINITY,
+                right: Number.NEGATIVE_INFINITY,
+                bottom: Number.NEGATIVE_INFINITY,
+                left: Number.POSITIVE_INFINITY
+            };
         }
 
-        add(path) {
-            this._path.addPath(path);
+        containsPoint(x, y) {
+            return this._context.isPointInPath(this._path, x, y);
         }
 
-        bezierVertex(cx1, cy1, cx2, cy2, x, y) {
-            this._path.bezierCurveTo(cx1, cy1, cx2, cy2, x, y);
+        getBoundingBox() {
+            return {
+                top: this._bounding.top + this.y,
+                right: this._bounding.right + this.x,
+                bottom: this._bounding.bottom + this.y,
+                left: this._bounding.left + this.x,
+                x: this._bounding.left + this.x,
+                y: this._bounding.top + this.y,
+                width: this._bounding.right - this._bounding.left,
+                height: this._bounding.bottom - this._bounding.top
+            };
         }
 
-        buildImage(options) {
+        render(options) {
+            const boundingBox = this.getBoundingBox();
+
             const canvas = document.createElement('canvas');
-            canvas.setAttribute('width', this.width);
-            canvas.setAttribute('height', this.height);
+            canvas.setAttribute('width', boundingBox.width);
+            canvas.setAttribute('height', boundingBox.height);
 
             const context = canvas.getContext('2d');
             Object.assign(context, options);
 
-            context.translate(this.x, this.y);
-            context.fill(this._path);
-            context.translate(-this.x, -this.y);
-
-            context.globalCompositeOperation = 'destination-out';
-            for (const contour of this._contours) {
-                const contourImage = contour.buildImage({
-                    fillStyle: '#000'
-                });
-                context.drawImage(contourImage, 0, 0);
-            }
-
-            return canvas;
-        }
-
-        close() {
-            this._path.closePath();
-        }
-
-        containsPoint(x, y) {
-            if (this._contours.some(contour => contour.containsPoint(x, y))) {
-                return false;
-            }
-
-            return this._context.isPointInPath(this._path, x, y);
-        }
-
-        createContour(x = 0, y = 0) {
-            const path = new Path(this._context, this.x + x, this.y + y, this.width, this.height);
-            this._contours.push(path);
-            return path;
-        }
-
-        curveVertex(x1, y1, x2, y2, radius) {
-            this._path.arcTo(x1, y1, x2, y2, radius);
-        }
-
-        quadraticVertex(cx, cy, x, y) {
-            this._path.quadraticCurveTo(cx, cy, x, y);
-        }
-
-        vertex(x, y) {
-            if (!this._hasVertex) {
-                this._path.moveTo(x, y);
-            } else {
-                this._path.lineTo(x, y);
-                this._hasVertex = true;
-            }
-        }
-
-        contains(path) {
-            if (this._contours.some(contour => contour.intersects(path))) {
-                return false;
-            }
-
-            const pathPixels = path._getPixels();
-            const overlapPixels = this._getOverlap(path);
-
-            return pathPixels.every((pixel, i) => !!pixel == !!overlapPixels[i]);
-        }
-
-        intersects(path) {
-            if (this._contours.some(contour => contour.contains(path))) {
-                return false;
-            }
-
-            return this._getOverlap(path).some(pixel => pixel);
-        }
-
-        _getPixels() {
-            const canvas = document.createElement('canvas');
-            canvas.setAttribute('width', this.width);
-            canvas.setAttribute('height', this.height);
-
-            const context = canvas.getContext('2d');
-            context.translate(this.x, this.y);
+            context.translate(-boundingBox.x, -boundingBox.y);
             context.fill(this._path);
 
-            const data = context.getImageData(0, 0, this.width, this.height);
-            return new Uint32Array(data.data.buffer);
+            return { canvas, context };
         }
 
-        _getOverlap(path) {
-            const canvas = document.createElement('canvas');
-            canvas.setAttribute('width', this.width);
-            canvas.setAttribute('height', this.height);
-
-            const context = canvas.getContext('2d');
-            context.translate(this.x, this.y);
-            context.clip(this._path);
-            context.translate(-this.x, -this.y);
-            context.translate(path.x, path.y);
-            context.fill(path._path);
-
-            const data = context.getImageData(0, 0, this.width, this.height);
-            return new Uint32Array(data.data.buffer);
+        _setBounds(xs, ys) {
+            this._bounding.top = Math.min(this._bounding.top, ...ys);
+            this._bounding.right = Math.max(this._bounding.right, ...xs);
+            this._bounding.bottom = Math.max(this._bounding.bottom, ...ys);
+            this._bounding.left = Math.min(this._bounding.left, ...xs);
         }
 
     }
@@ -642,32 +598,256 @@
 
     Object.assign(Path.prototype, {
 
+        bezierVertex(cx1, cy1, cx2, cy2, x, y) {
+            this._setBounds([cx1, cx2, x], [cy1, cy2, y]);
+            this._path.bezierCurveTo(cx1, cy1, cx2, cy2, x, y);
+        },
+
+        close() {
+            this._path.closePath();
+        },
+
+        curveVertex(x1, y1, x2, y2, radius) {
+            this._setBounds([x1, x2], [y1, y2]);
+            this._path.arcTo(x1, y1, x2, y2, radius);
+        },
+
+        quadraticVertex(cx, cy, x, y) {
+            this._setBounds([cx, x], [cy, y]);
+            this._path.quadraticCurveTo(cx, cy, x, y);
+        },
+
+        vertex(x, y) {
+            this._setBounds([x], [y]);
+
+            if (!this._hasVertex) {
+                this._path.moveTo(x, y);
+                this._hasVertex = true;
+            } else {
+                this._path.lineTo(x, y);
+            }
+        }
+
+    });
+
+
+    Object.assign(Path.prototype, {
+
         arc(x, y, radius, startAngle, endAngle) {
+            this._setBounds([x - radius, x + radius], [y - radius, y + radius]);
             this._path.arc(x, y, radius, startAngle, endAngle);
         },
 
+        bezier(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._setBounds([x1, x2, x3, x4], [y1, y2, y3, y4]);
+            this._path.moveTo(x1, y1);
+            this._path.bezierCurveTo(x2, y2, x3, y3, x4, y4);
+        },
+
         circle(x, y, diameter) {
-            return this.ellipse(x, y, diameter, diameter);
+            this.ellipse(x, y, diameter, diameter);
+        },
+
+        curve(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._setBounds([x1, x2, x3, x4], [y1, y2, y3, y4]);
+            this._path.moveTo(x1, y1);
+            this._path.arcTo(x2, y2, x3, y3, x4, y4);
         },
 
         ellipse(x, y, width, height, angle = 0) {
-            this._path.ellipse(x, y, width / 2, height / 2, angle, 0, Math.PI * 2);
+            const xRadius = width / 2;
+            const yRadius = height / 2;
+            this._setBounds([x - xRadius, x + xRadius], [y - yRadius, y + yRadius]);
+            this._path.ellipse(x, y, xRadius, yRadius, angle, 0, Math.PI * 2);
         },
 
         line(x1, y1, x2, y2) {
+            this._setBounds([x1, x2], [y1, y2]);
             this._path.moveTo(x1, y1);
             this._path.lineTo(x2, y2);
         },
 
+        quad(x1, y1, x2, y2, x3, y3, x4, y4) {
+            this._setBounds([x1, x2, x3, x4], [y1, y2, y3, y4]);
+            this._path.moveTo(x1, y1);
+            this._path.lineTo(x2, y2);
+            this._path.lineTo(x3, y3);
+            this._path.lineTo(x4, y4);
+            this._path.closePath();
+        },
+
         rect(x, y, width, height) {
+            this._setBounds([x, x + width], [y, y + height]);
             this._path.rect(x, y, width, height);
         },
 
         square(x, y, size) {
             this.rect(x, y, size, size);
+        },
+
+        triangle(x1, y1, x2, y2, x3, y3) {
+            this._setBounds([x1, x2, x3], [y1, y2, y3]);
+            this._path.moveTo(x1, y1);
+            this._path.lineTo(x2, y2);
+            this._path.lineTo(x3, y3);
+            this._path.closePath();
         }
 
     });
+
+
+    class Shape {
+
+        constructor(context, x = 0, y = 0) {
+            this._context = context;
+            this.x = x;
+            this.y = y;
+
+            this._layers = [];
+
+            this._bounding = {
+                top: Number.POSITIVE_INFINITY,
+                right: Number.NEGATIVE_INFINITY,
+                bottom: Number.NEGATIVE_INFINITY,
+                left: Number.POSITIVE_INFINITY
+            };
+        }
+
+        contains(shape) {
+            const bounds = this.getBoundingBox();
+            const otherBounds = shape.getBoundingBox();
+
+            if (bounds.top > otherBounds.top || bounds.right < otherBounds.right || bounds.bottom < otherBounds.bottom || bounds.left > otherBounds.left) {
+                return false;
+            }
+
+            const { canvas } = this.render();
+            const { context } = shape.render();
+
+            context.globalCompositeOperation = 'destination-out';
+            context.drawImage(canvas, bounds.x - otherBounds.x, bounds.y - otherBounds.y);
+
+            return this._isContextBlank(context, otherBounds.width, otherBounds.height);
+        }
+
+        containsPoint(x, y) {
+            let pointInShape = false;
+            for (const { contour, path } of this._layers) {
+                if (pointInShape && !contour) {
+                    continue;
+                }
+
+                if (!pointInShape && contour) {
+                    continue;
+                }
+
+                const pointInPath = path.containsPoint(x, y);
+
+                if (!pointInPath) {
+                    continue;
+                }
+
+                pointInShape = !pointInShape;
+            }
+
+            return pointInShape;
+        }
+
+        contour(callback) {
+            this.layer(callback, true);
+        }
+
+        getBoundingBox() {
+            return {
+                top: this._bounding.top + this.y,
+                right: this._bounding.right + this.x,
+                bottom: this._bounding.bottom + this.y,
+                left: this._bounding.left + this.x,
+                x: this._bounding.left + this.x,
+                y: this._bounding.top + this.y,
+                width: this._bounding.right - this._bounding.left,
+                height: this._bounding.bottom - this._bounding.top
+            };
+        }
+
+        intersects(shape) {
+            const bounds = this.getBoundingBox();
+            const otherBounds = shape.getBoundingBox();
+
+            if (bounds.top > otherBounds.bottom || bounds.right < otherBounds.left || bounds.bottom < otherBounds.top || bounds.left > otherBounds.right) {
+                return false;
+            }
+
+            const { context } = this.render();
+            const { canvas } = shape.render();
+
+            context.globalCompositeOperation = 'destination-in';
+            context.drawImage(canvas, otherBounds.x - bounds.x, otherBounds.y - bounds.y);
+
+            return !this._isContextBlank(context, bounds.width, bounds.height);
+        }
+
+        layer(callback, contour = false) {
+            const path = new Path(this._context);
+            callback(path);
+            this._addLayer(path, contour);
+        }
+
+        render(options) {
+            const boundingBox = this.getBoundingBox();
+
+            const canvas = document.createElement('canvas');
+            canvas.setAttribute('width', boundingBox.width);
+            canvas.setAttribute('height', boundingBox.height);
+
+            const context = canvas.getContext('2d');
+
+            for (const { contour, path } of this._layers) {
+                let layerOptions;
+                if (contour) {
+                    context.globalCompositeOperation = 'destination-out';
+                    layerOptions = {
+                        fillStyle: '#000'
+                    };
+                } else {
+                    context.globalCompositeOperation = 'source-over';
+                    layerOptions = options;
+                }
+
+                const layerBounds = path.getBoundingBox();
+                const { canvas: layerCanvas } = path.render(layerOptions);
+                context.drawImage(layerCanvas, this.x + layerBounds.x - boundingBox.x, this.y + layerBounds.y - boundingBox.y);
+            }
+
+            return { canvas, context };
+        }
+
+        _addLayer(path, contour = false) {
+            this._layers.push({
+                contour,
+                path
+            });
+
+            if (!contour) {
+                const boundingBox = path.getBoundingBox();
+                this._setBounds([boundingBox.left, boundingBox.right], [boundingBox.top, boundingBox.bottom]);
+            }
+        }
+
+        _isContextBlank(context, width, height) {
+            const data = context.getImageData(0, 0, width, height);
+            const buffer = new Uint32Array(data.data.buffer);
+            return buffer.every(value => !value);
+        }
+
+        _setBounds(xs, ys) {
+            this._bounding.top = Math.min(this._bounding.top, ...ys);
+            this._bounding.right = Math.max(this._bounding.right, ...xs);
+            this._bounding.bottom = Math.max(this._bounding.bottom, ...ys);
+            this._bounding.left = Math.min(this._bounding.left, ...xs);
+        }
+
+    }
 
 
     class Vector {
@@ -788,6 +968,7 @@
     F5.Canvas = Canvas;
     F5.Input = Input;
     F5.Path = Path;
+    F5.Shape = Shape;
     F5.Vector = Vector;
 
     return {

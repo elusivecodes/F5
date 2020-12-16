@@ -1,23 +1,17 @@
 class Canvas {
 
-    constructor(node, width = 600, height = 400, settings) {
+    constructor(node, width = 600, height = 400, settings = {}) {
         this._node = node;
         this._context = this._node.getContext('2d');
 
-        this._settings = {
-            fill: false,
-            stroke: false,
-            shadow: false,
-            font: 'sans-serif',
-            fontSize: 10,
-            fontWeight: null,
-            rectMode: null,
-            ellipseMode: null,
-            ...settings
-        };
+        this.reset();
+
+        if (settings) {
+            Object.assign(this._settings, settings);
+        }
 
         this._states = [];
-        this._hasPath = false;
+        this._hasVertex = false;
 
         this.resize(width, height);
     }
@@ -37,45 +31,46 @@ class Canvas {
         this._context.clearRect(0, 0, this.width, this.height);
     }
 
-    createPath(x = 0, y = 0) {
-        return new Path(this._context, x, y, this.width, this.height);
+    createShape() {
+        return new Shape(this._context);
     }
 
-    // createShape(callback) {
-    //     const canvas = document.createElement('canvas');
-    //     const draw = new this.constructor(canvas, this.width, this.height, this._settings);
-    //     draw._context.fillStyle = this._context.fillStyle;
-    //     draw._context.font = this._context.font;
-    //     draw._context.lineWidth = this._context.lineWidth;
-    //     draw._context.shadowBlur = this._context.shadowBlur;
-    //     draw._context.shadowColor = this._context.shadowColor;
-    //     draw._context.shadowOffsetX = this._context.shadowOffsetX;
-    //     draw._context.shadowOffsetY = this._context.shadowOffsetY;
-    //     draw._context.strokeStyle = this._context.strokeStyle;
-    //     draw._context.textAlign = this._context.textAlign;
-    //     callback(draw);
-    //     this.drawImage(canvas, 0, 0);
-    // }
+    createPath() {
+        return new Path(this._context);
+    }
 
-    drawImage(image, x, y) {
+    drawImage(image, x = 0, y = 0) {
         this._context.drawImage(image, x, y);
     }
 
-    drawPath(path) {
-        const image = path.buildImage({
+    drawPath(path, x = 0, y = 0) {
+        const boundingBox = path.getBoundingBox();
+        const { canvas } = path.render({
             fillStyle: this._context.fillStyle,
             lineWidth: this._context.lineWidth,
             strokeStyle: this._context.strokeStyle
         });
-        this.drawImage(image, 0, 0);
+        this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
+    }
+
+    drawShape(shape, x = 0, y = 0) {
+        const boundingBox = shape.getBoundingBox();
+        const { canvas } = shape.render({
+            fillStyle: this._context.fillStyle,
+            lineWidth: this._context.lineWidth,
+            strokeStyle: this._context.strokeStyle
+        });
+        this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
     }
 
     erase(callback) {
         this.push();
         this.reset();
-        this.fillColor('black');
+        const path = this.createPath();
+        callback(path);
         this._context.globalCompositeOperation = 'destination-out';
-        callback();
+        this.fillColor('#000');
+        this.drawPath(path);
         this.pop();
     }
 
@@ -102,17 +97,14 @@ class Canvas {
     }
 
     reset() {
-        this._path = [];
-
-        this._fill = false;
-        this._stroke = false;
-        this._shadow = false;
-
-        this._font = 'sans-serif';
-        this._fontSize = 10;
-        this._fontWeight = null;
-
-        this._rectMode = false;
+        this._settings = {
+            fill: false,
+            stroke: false,
+            shadow: false,
+            font: 'sans-serif',
+            fontSize: 10,
+            fontWeight: null
+        };
 
         this.resetMatrix();
     }
@@ -140,8 +132,12 @@ class Canvas {
         this._context.rotateZ(angle);
     }
 
-    scale(width, height) {
-        this._context.scale(width, height);
+    scale(x, y = null) {
+        if (y === undefined) {
+            y = x;
+        }
+
+        this._context.scale(x, y);
     }
 
     translate(x, y) {

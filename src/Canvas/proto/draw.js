@@ -35,7 +35,7 @@ Object.assign(Canvas.prototype, {
     },
 
     strokeColor(color) {
-        this._settings.shadow = true;
+        this._settings.stroke = true;
         this._context.strokeStyle = color;
     },
 

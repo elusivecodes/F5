@@ -18,6 +18,7 @@
     F5.Canvas = Canvas;
     F5.Input = Input;
     F5.Path = Path;
+    F5.Shape = Shape;
     F5.Vector = Vector;
 
     return {
