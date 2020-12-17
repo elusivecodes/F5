@@ -1,4 +1,8 @@
-[ ] rotate(angle, axis)
-[X] scale(s, y, z)
-[ ] shearX(angle)
-[ ] shearY(angle)
+[X] Add create static method to F5 JS
+[ ] Add rotation support for shapes/paths
+[ ] Add angleMode/ellipseMode/rectMode ??
+[ ] Add perlin noise ??
+
+[ ] Add rotate(angle, axis)
+[ ] Add shearX(angle)
+[ ] Add shearY(angle)

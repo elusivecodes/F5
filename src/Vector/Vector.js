@@ -7,6 +7,7 @@ class Vector {
 
     add(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         this.x += x;
         this.y += y;
 
@@ -15,6 +16,7 @@ class Vector {
 
     angleTo(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         return Math.atan2(y, x) - this.getHeading();
     };
 
@@ -24,11 +26,22 @@ class Vector {
 
     distTo(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         return Math.hypot(x - this.x, y - this.y);
+    }
+
+    div(...args) {
+        const { x, y } = this.constructor._parse(...args);
+
+        this.x /= x;
+        this.y /= y;
+
+        return this;
     }
 
     dot(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         this.x *= y;
         this.y *= x;
 
@@ -53,6 +66,7 @@ class Vector {
 
     mult(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         this.x *= x;
         this.y *= y;
 
@@ -64,8 +78,10 @@ class Vector {
     }
 
     rotate(angle) {
-        const mag = this.getMag();
         angle += this.getHeading();
+
+        const mag = this.getMag();
+
         this.x = Math.cos(angle) * mag;
         this.y = Math.sin(angle) * mag;
 
@@ -74,6 +90,7 @@ class Vector {
 
     setHeading(angle) {
         const mag = this.getMag();
+
         this.x = Math.cos(angle) * mag;
         this.y = Math.sin(angle) * mag;
 
@@ -82,6 +99,7 @@ class Vector {
 
     setMag(mag) {
         const angle = this.getHeading();
+
         this.x = Math.cos(angle) * mag;
         this.y = Math.sin(angle) * mag;
 
@@ -90,10 +108,19 @@ class Vector {
 
     sub(...args) {
         const { x, y } = this.constructor._parse(...args);
+
         this.x -= x;
         this.y -= y;
 
         return this;
+    }
+
+    static create(x, y) {
+        return new this(x, y);
+    }
+
+    static random() {
+        return new this(Math.random(), Math.random());
     }
 
     static _parse(x, y) {
@@ -105,10 +132,6 @@ class Vector {
         }
 
         return { x, y };
-    }
-
-    static random() {
-        return new this(Math.random(), Math.random());
     }
 
 }

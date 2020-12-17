@@ -9,46 +9,46 @@
 </head>
 
 <body>
-    <canvas id="canvas" tabindex="1"></canvas>
     <script>
         class Sketch extends F5 {
 
             setup() {
-                this.pos = new F5.Vector(300, 200);
+                this.pos = F5.Vector.create(300, 200);
                 this.vel = F5.Vector.random().mult(5);
 
-                this.shape1 = this.canvas.createShape();
-                this.shape1.layer(path => {
-                    path.vertex(50, 350);
-                    path.vertex(300, 50);
-                    path.vertex(550, 350);
-                    path.vertex(300, 150);
-                    path.close();
-                });
+                this.shape1 = this.canvas.createShape()
+                    .layer(path => {
+                        path
+                            .vertex(50, 350)
+                            .vertex(300, 50)
+                            .vertex(550, 350)
+                            .vertex(300, 150)
+                            .close();
+                    });
 
-                this.shape2 = this.canvas.createShape();
-                this.shape2.layer(path => {
-                    path.ellipse(0, 0, 300, 200);
-                });
-                this.shape2.contour(contour => {
-                    contour.ellipse(0, 0, 150, 150);
-                });
-                this.shape2.layer(path => {
-                    path.triangle(-50, 50, 0, -75, 50, 50);
-                });
+                this.shape2 = this.canvas.createShape()
+                    .layer(path => {
+                        path.ellipse(0, 0, 300, 200);
+                    })
+                    .contour(contour => {
+                        contour.ellipse(0, 0, 150, 150);
+                    })
+                    .layer(path => {
+                        path.triangle(-50, 50, 0, -75, 50, 50);
+                    });
 
-                this.mouseShape = this.canvas.createShape();
-                this.mouseShape.layer(path => {
-                    path.vertex(-5, -5);
-                    path.vertex(0, -2);
-                    path.vertex(5, -5);
-                    path.vertex(2, 0);
-                    path.vertex(5, 5);
-                    path.vertex(0, 2);
-                    path.vertex(-5, 5);
-                    path.vertex(-2, 0);
-                    path.close();
-                });
+                this.mouseShape = this.canvas.createShape()
+                    .layer(path => {
+                        path.vertex(-5, -5)
+                            .vertex(0, -2)
+                            .vertex(5, -5)
+                            .vertex(2, 0)
+                            .vertex(5, 5)
+                            .vertex(0, 2)
+                            .vertex(-5, 5)
+                            .vertex(-2, 0)
+                            .close();
+                    });
             }
 
             update() {
@@ -90,32 +90,34 @@
 
                 this.canvas.background('#333');
 
-                // this.canvas.noFill();
-                // this.canvas.strokeColor('rgba(0, 150, 150, .8)');
-                // this.canvas.strokeWidth(1);
-                // this.canvas.rect(bounds2.x, bounds2.y, bounds2.width, bounds2.height);
-                // this.canvas.rect(bounds1.x, bounds1.y, bounds1.width, bounds1.height);
-
-                // if (mousePos) {
-                //     this.canvas.rect(mouseBounds.x, mouseBounds.y, mouseBounds.width, mouseBounds.height);
-                // }
-
-                this.canvas.fillColor(fill1);
-                this.canvas.drawShape(this.shape1);
-
-                this.canvas.fillColor(fill2);
-                this.canvas.drawShape(this.shape2);
+                this.canvas.noFill();
+                this.canvas.strokeColor('rgba(0, 150, 150, .8)');
+                this.canvas.strokeWidth(1);
+                this.canvas.rect(bounds2.x, bounds2.y, bounds2.width, bounds2.height);
+                this.canvas.rect(bounds1.x, bounds1.y, bounds1.width, bounds1.height);
 
                 if (mousePos) {
-                    this.canvas.fillColor('rgba(255, 255, 255, .5)');
-                    this.canvas.drawShape(this.mouseShape);
+                    this.canvas.rect(mouseBounds.x, mouseBounds.y, mouseBounds.width, mouseBounds.height);
                 }
+
+                this.canvas.noStroke()
+                    .fillColor(fill1)
+                    .drawShape(this.shape1)
+                    .fillColor(fill2)
+                    .drawShape(this.shape2);
+
+                if (mousePos) {
+                    this.canvas.fillColor('rgba(255, 255, 255, .5)')
+                        .drawShape(this.mouseShape);
+                }
+
+                this.canvas.fillColor('white')
+                    .text('Hello World', 20, 20);
             }
 
         }
 
-        const canvas = document.getElementById('canvas');
-        const sketch = new Sketch(canvas);
+        Sketch.createCanvas();
     </script>
 </body>
 

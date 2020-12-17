@@ -19,6 +19,7 @@ class Shape {
         const bounds = this.getBoundingBox();
         const otherBounds = shape.getBoundingBox();
 
+        // check bounding boxes overlap
         if (bounds.top > otherBounds.top || bounds.right < otherBounds.right || bounds.bottom < otherBounds.bottom || bounds.left > otherBounds.left) {
             return false;
         }
@@ -29,23 +30,18 @@ class Shape {
         context.globalCompositeOperation = 'destination-out';
         context.drawImage(canvas, bounds.x - otherBounds.x, bounds.y - otherBounds.y);
 
-        return this._isContextBlank(context, otherBounds.width, otherBounds.height);
+        return this.constructor._isContextBlank(context, otherBounds.width, otherBounds.height);
     }
 
     containsPoint(x, y) {
         let pointInShape = false;
+
         for (const { contour, path } of this._layers) {
-            if (pointInShape && !contour) {
-                continue;
-            }
-
-            if (!pointInShape && contour) {
-                continue;
-            }
-
-            const pointInPath = path.containsPoint(x, y);
-
-            if (!pointInPath) {
+            if (
+                (pointInShape && !contour) ||
+                (!pointInShape && contour) ||
+                !path.containsPoint(x, y)
+            ) {
                 continue;
             }
 
@@ -56,7 +52,7 @@ class Shape {
     }
 
     contour(callback) {
-        this.layer(callback, true);
+        return this.layer(callback, true);
     }
 
     getBoundingBox() {
@@ -76,6 +72,7 @@ class Shape {
         const bounds = this.getBoundingBox();
         const otherBounds = shape.getBoundingBox();
 
+        // check bounding boxes overlap
         if (bounds.top > otherBounds.bottom || bounds.right < otherBounds.left || bounds.bottom < otherBounds.top || bounds.left > otherBounds.right) {
             return false;
         }
@@ -86,25 +83,29 @@ class Shape {
         context.globalCompositeOperation = 'destination-in';
         context.drawImage(canvas, otherBounds.x - bounds.x, otherBounds.y - bounds.y);
 
-        return !this._isContextBlank(context, bounds.width, bounds.height);
+        return !this.constructor._isContextBlank(context, bounds.width, bounds.height);
     }
 
     layer(callback, contour = false) {
         const path = new Path(this._context);
+
         callback(path);
-        this._addLayer(path, contour);
+
+        return this._addLayer(path, contour);
     }
 
     render(options) {
-        const boundingBox = this.getBoundingBox();
+        const bounds = this.getBoundingBox();
 
         const canvas = document.createElement('canvas');
-        canvas.setAttribute('width', boundingBox.width);
-        canvas.setAttribute('height', boundingBox.height);
-
         const context = canvas.getContext('2d');
 
+        canvas.setAttribute('width', bounds.width);
+        canvas.setAttribute('height', bounds.height);
+
         for (const { contour, path } of this._layers) {
+            const layerBounds = path.getBoundingBox();
+
             let layerOptions;
             if (contour) {
                 context.globalCompositeOperation = 'destination-out';
@@ -116,9 +117,9 @@ class Shape {
                 layerOptions = options;
             }
 
-            const layerBounds = path.getBoundingBox();
             const { canvas: layerCanvas } = path.render(layerOptions);
-            context.drawImage(layerCanvas, this.x + layerBounds.x - boundingBox.x, this.y + layerBounds.y - boundingBox.y);
+
+            context.drawImage(layerCanvas, this.x + layerBounds.x - bounds.x, this.y + layerBounds.y - bounds.y);
         }
 
         return { canvas, context };
@@ -131,22 +132,21 @@ class Shape {
         });
 
         if (!contour) {
-            const boundingBox = path.getBoundingBox();
-            this._setBounds([boundingBox.left, boundingBox.right], [boundingBox.top, boundingBox.bottom]);
+            const bounds = path.getBoundingBox();
+            this._bounding.top = Math.min(this._bounding.top, bounds.top);
+            this._bounding.right = Math.max(this._bounding.right, bounds.right);
+            this._bounding.bottom = Math.max(this._bounding.bottom, bounds.bottom);
+            this._bounding.left = Math.min(this._bounding.left, bounds.left);
         }
+
+        return this;
     }
 
-    _isContextBlank(context, width, height) {
+    static _isContextBlank(context, width, height) {
         const data = context.getImageData(0, 0, width, height);
         const buffer = new Uint32Array(data.data.buffer);
-        return buffer.every(value => !value);
-    }
 
-    _setBounds(xs, ys) {
-        this._bounding.top = Math.min(this._bounding.top, ...ys);
-        this._bounding.right = Math.max(this._bounding.right, ...xs);
-        this._bounding.bottom = Math.max(this._bounding.bottom, ...ys);
-        this._bounding.left = Math.min(this._bounding.left, ...xs);
+        return buffer.every(value => !value);
     }
 
 }

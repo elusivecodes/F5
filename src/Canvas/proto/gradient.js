@@ -1,9 +1,5 @@
 Object.assign(Canvas.prototype, {
 
-    addStop(gradient, stop, color) {
-        gradient.addColorStop(stop, color);
-    },
-
     linear(x1, y1, x2, y2) {
         return this._context.createLinearGradient(x1, y1, x2, y2);
     },

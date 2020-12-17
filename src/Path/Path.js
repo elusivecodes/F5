@@ -34,16 +34,17 @@ class Path {
     }
 
     render(options) {
-        const boundingBox = this.getBoundingBox();
+        const bounds = this.getBoundingBox();
 
         const canvas = document.createElement('canvas');
-        canvas.setAttribute('width', boundingBox.width);
-        canvas.setAttribute('height', boundingBox.height);
-
         const context = canvas.getContext('2d');
+
+        canvas.setAttribute('width', bounds.width);
+        canvas.setAttribute('height', bounds.height);
+
         Object.assign(context, options);
 
-        context.translate(-boundingBox.x, -boundingBox.y);
+        context.translate(-bounds.x, -bounds.y);
         context.fill(this._path);
 
         return { canvas, context };
@@ -54,6 +55,8 @@ class Path {
         this._bounding.right = Math.max(this._bounding.right, ...xs);
         this._bounding.bottom = Math.max(this._bounding.bottom, ...ys);
         this._bounding.left = Math.min(this._bounding.left, ...xs);
+
+        return this;
     }
 
 }

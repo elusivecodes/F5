@@ -1,73 +1,91 @@
 Object.assign(Canvas.prototype, {
 
     arc(x, y, radius, startAngle, endAngle) {
-        this._context.beginPath();
+        this.begin();
+
         this._context.arc(x, y, radius, startAngle, endAngle);
-        this.end();
+
+        return this.end();
     },
 
     bezier(x1, y1, x2, y2, x3, y3, x4, y4) {
-        this._context.beginPath();
-        this._context.moveTo(x1, y1);
-        this._context.bezierCurveTo(x2, y2, x3, y3, x4, y4);
-        this.end();
+        this.begin();
+
+        this.vertex(x1, y1);
+        this.bezierVertex(x2, y2, x3, y3, x4, y4);
+
+        return this.end();
     },
 
     circle(x, y, diameter) {
-        this.ellipse(x, y, diameter, diameter);
+        return this.ellipse(x, y, diameter, diameter);
     },
 
     curve(x1, y1, x2, y2, x3, y3, x4, y4) {
-        this._context.beginPath();
-        this._context.moveTo(x1, y1);
-        this._context.arcTo(x2, y2, x3, y3, x4, y4);
-        this.end();
+        this.begin();
+
+        this.vertex(x1, y1);
+        this.curveTo(x2, y2, x3, y3, x4, y4);
+
+        return this.end();
     },
 
     ellipse(x, y, width, height, angle = 0) {
-        this._context.beginPath();
+        this.begin();
+
         this._context.ellipse(x, y, width / 2, height / 2, angle, 0, Math.PI * 2);
-        this.end();
+
+        return this.end();
     },
 
     line(x1, y1, x2, y2) {
-        this._context.beginPath();
-        this._context.moveTo(x1, y1);
-        this._context.lineTo(x2, y2);
-        this._context.stroke();
+        this.begin();
+
+        this.vertex(x1, y1);
+        this.vertex(x2, y2);
+
+        return this.end();
     },
 
     point(x, y) {
-        this._context.beginPath();
-        this._context.moveTo(x, y);
-        this._context.stroke();
+        this.begin();
+
+        this.vertex(x, y);
+
+        return this.end();
     },
 
     quad(x1, y1, x2, y2, x3, y3, x4, y4) {
-        this._context.beginPath();
-        this._context.moveTo(x1, y1);
-        this._context.lineTo(x2, y2);
-        this._context.lineTo(x3, y3);
-        this._context.lineTo(x4, y4);
-        this.end(true);
+        this.begin();
+
+        this.vertex(x1, y1);
+        this.vertex(x2, y2);
+        this.vertex(x3, y3);
+        this.vertex(x4, y4);
+
+        return this.end(true);
     },
 
     rect(x, y, width, height) {
-        this._context.beginPath();
+        this.begin();
+
         this._context.rect(x, y, width, height);
-        this.end();
+
+        return this.end();
     },
 
     square(x, y, size) {
-        this.rect(x, y, size, size);
+        return this.rect(x, y, size, size);
     },
 
     triangle(x1, y1, x2, y2, x3, y3) {
-        this._context.beginPath();
-        this._context.moveTo(x1, y1);
-        this._context.lineTo(x2, y2);
-        this._context.lineTo(x3, y3);
-        this.end(true);
+        this.begin();
+
+        this.vertex(x1, y1);
+        this.vertex(x2, y2);
+        this.vertex(x3, y3);
+
+        return this.end(true);
     }
 
 });

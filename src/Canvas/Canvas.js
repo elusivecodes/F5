@@ -1,6 +1,6 @@
 class Canvas {
 
-    constructor(node, width = 600, height = 400, settings = {}) {
+    constructor(node, width = 600, height = 400, settings) {
         this._node = node;
         this._context = this._node.getContext('2d');
 
@@ -18,21 +18,27 @@ class Canvas {
 
     applyMatrix(a, b, c, d, e, f) {
         this._context.transform(a, b, c, d, e, f);
+
+        return this;
     }
 
     background(color) {
+        this.push();
         this.fillColor(color);
-        this.begin();
-        this._context.rect(0, 0, this.width, this.height);
-        this.end();
+        this.rect(0, 0, this.width, this.height);
+        this.pop();
+
+        return this;
     }
 
     clear() {
         this._context.clearRect(0, 0, this.width, this.height);
+
+        return this;
     }
 
-    createShape() {
-        return new Shape(this._context);
+    createShape(x = 0, y = 0, rotation = 0) {
+        return new Shape(this._context, x, y, rotation);
     }
 
     createPath() {
@@ -41,26 +47,22 @@ class Canvas {
 
     drawImage(image, x = 0, y = 0) {
         this._context.drawImage(image, x, y);
+
+        return this;
     }
 
     drawPath(path, x = 0, y = 0) {
-        const boundingBox = path.getBoundingBox();
-        const { canvas } = path.render({
-            fillStyle: this._context.fillStyle,
-            lineWidth: this._context.lineWidth,
-            strokeStyle: this._context.strokeStyle
-        });
-        this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
+        const bounds = path.getBoundingBox();
+        const { canvas } = path.render(this._settings);
+
+        return this.drawImage(canvas, bounds.x + x, bounds.y + y);
     }
 
     drawShape(shape, x = 0, y = 0) {
-        const boundingBox = shape.getBoundingBox();
-        const { canvas } = shape.render({
-            fillStyle: this._context.fillStyle,
-            lineWidth: this._context.lineWidth,
-            strokeStyle: this._context.strokeStyle
-        });
-        this.drawImage(canvas, boundingBox.x + x, boundingBox.y + y);
+        const bounds = shape.getBoundingBox();
+        const { canvas } = shape.render(this._settings);
+
+        return this.drawImage(canvas, bounds.x + x, bounds.y + y);
     }
 
     erase(callback) {
@@ -72,6 +74,8 @@ class Canvas {
         this.fillColor('#000');
         this.drawPath(path);
         this.pop();
+
+        return this;
     }
 
     getImage(x, y, w, h) {
@@ -81,11 +85,15 @@ class Canvas {
     pop() {
         this._settings = this._states.pop();
         this._context.restore();
+
+        return this;
     }
 
     push() {
         this._states.push(this._settings);
         this._context.save();
+
+        return this;
     }
 
     putImage(image, x, y, dx, dy, dw, dh) {
@@ -94,23 +102,31 @@ class Canvas {
         } else {
             this._context.putImageData(image, x, y);
         }
+
+        return this;
     }
 
     reset() {
         this._settings = {
-            fill: false,
-            stroke: false,
-            shadow: false,
+            fillStyle: null,
             font: 'sans-serif',
             fontSize: 10,
-            fontWeight: null
+            fontWeight: null,
+            lineWidth: 1,
+            shadowBlur: 0,
+            shadowColor: null,
+            shadowOffsetX: 0,
+            shadowOffsetY: 0,
+            strokeStyle: '#000',
         };
 
-        this.resetMatrix();
+        return this.resetMatrix();
     }
 
     resetMatrix() {
         this._context.resetTransform();
+
+        return this;
     }
 
     resize(w, h) {
@@ -118,18 +134,14 @@ class Canvas {
         this.height = h;
         this._node.setAttribute('width', this.width);
         this._node.setAttribute('height', this.height);
+
+        return this;
     }
 
-    rotateX(angle) {
-        this._context.rotateX(angle);
-    }
+    rotate(angle) {
+        this._context.rotate(angle);
 
-    rotateY(angle) {
-        this._context.rotateY(angle);
-    }
-
-    rotateZ(angle) {
-        this._context.rotateZ(angle);
+        return this;
     }
 
     scale(x, y = null) {
@@ -138,10 +150,18 @@ class Canvas {
         }
 
         this._context.scale(x, y);
+
+        return this;
     }
 
     translate(x, y) {
         this._context.translate(x, y);
+
+        return this;
+    }
+
+    static create(node, width = 600, height = 400, settings) {
+        return new this(node, width, height, settings);
     }
 
 }
