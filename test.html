@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="dist/f5.js"></script>
+</head>
+
+<body>
+    <script>
+        class Sketch extends F5 {
+
+            setup() {
+                this.r1 = 0;
+                this.r2 = 0;
+            }
+
+            update() {
+                this.canvas.background('#333');
+
+                const s1 = this.canvas.createShape(300, 200, 0, 100, 50)
+                    .layer(path => {
+                        path.ellipse(0, 0, 300, 200);
+                    })
+                    .contour(contour => {
+                        contour.ellipse(0, 0, 150, 150);
+                    })
+                    .layer(path => {
+                        path.triangle(-50, 50, 0, -75, 50, 50);
+                    });
+                s1.angle = this.r1;
+
+                this.canvas.fillColor('rgba(0, 0, 255, .5)');
+                this.canvas.drawShape(s1);
+
+                // const bounds1 = s1.getBoundingBox();
+                // this.canvas.noFill();
+                // this.canvas.strokeColor('rgba(255, 255, 255, .1)');
+                // this.canvas.rect(bounds1.x, bounds1.y, bounds1.width, bounds1.height);
+
+                const mousePos = this.input.mousePos();
+                // const mousePos = { x: 250, y: 250 };
+
+                if (mousePos) {
+                    const s2 = this.canvas.createShape(mousePos.x, mousePos.y);
+                    s2.layer(path => {
+                        path.rect(-10, -5, 20, 10);
+                    });
+                    s2.angle = this.r2;
+
+                    if (s1.intersects(s2)) {
+                        this.canvas.fillColor('rgba(255, 0, 0, .5)');
+                    } else if (s1.intersectsBounds(s2)) {
+                        this.canvas.fillColor('rgba(255, 100, 0, .5)');
+                    } else {
+                        this.canvas.fillColor('rgba(0, 255, 0, .5)');
+                    }
+                    this.canvas.drawShape(s2);
+
+                }
+
+                // this.noLoop();
+                this.r1 += 0.01;
+                this.r2 += 0.02;
+            }
+
+        }
+
+        Sketch.createCanvas();
+    </script>
+</body>
+
+</html>

@@ -37,8 +37,8 @@ class Canvas {
         return this;
     }
 
-    createShape(x = 0, y = 0, rotation = 0) {
-        return new Shape(this._context, x, y, rotation);
+    createShape(x = 0, y = 0, angle = 0, anchorX = 0, anchorY = 0) {
+        return new Shape(this._context, x, y, angle, anchorX, anchorY);
     }
 
     createPath() {
@@ -59,10 +59,19 @@ class Canvas {
     }
 
     drawShape(shape, x = 0, y = 0) {
-        const bounds = shape.getBoundingBox();
+        const bounds = shape.getRenderBox();
         const { canvas } = shape.render(this._settings);
 
-        return this.drawImage(canvas, bounds.x + x, bounds.y + y);
+        const offsetX = shape.x + shape.anchorX;
+        const offsetY = shape.y + shape.anchorY;
+        this.push();
+        this.translate(offsetX, offsetY);
+        this.rotate(shape.angle);
+        this.translate(-offsetX, -offsetY);
+        this.drawImage(canvas, bounds.x + x, bounds.y + y);
+        this.pop();
+
+        return this;
     }
 
     erase(callback) {

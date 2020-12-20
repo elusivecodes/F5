@@ -1,9 +1,7 @@
 class Path {
 
-    constructor(context, x = 0, y = 0) {
+    constructor(context) {
         this._context = context;
-        this.x = x;
-        this.y = y;
 
         this._path = new Path2D();
         this._hasVertex = false;
@@ -22,12 +20,12 @@ class Path {
 
     getBoundingBox() {
         return {
-            top: this._bounding.top + this.y,
-            right: this._bounding.right + this.x,
-            bottom: this._bounding.bottom + this.y,
-            left: this._bounding.left + this.x,
-            x: this._bounding.left + this.x,
-            y: this._bounding.top + this.y,
+            top: this._bounding.top,
+            right: this._bounding.right,
+            bottom: this._bounding.bottom,
+            left: this._bounding.left,
+            x: this._bounding.left,
+            y: this._bounding.top,
             width: this._bounding.right - this._bounding.left,
             height: this._bounding.bottom - this._bounding.top
         };
