@@ -839,36 +839,6 @@
             };
         }
 
-        contains(shape) {
-            if (!this.intersectsBounds(shape)) {
-                return false;
-            }
-
-            const bounds = this.getRenderBox();
-            const otherBounds = shape.getRenderBox();
-
-            const { canvas } = this.render();
-            const { context } = shape.render();
-
-            context.globalCompositeOperation = 'destination-out';
-
-            const offsetX1 = this.x + this.anchorX;
-            const offsetY1 = this.y + this.anchorY;
-            context.translate(offsetX1 - bounds.x, offsetY1 - bounds.y);
-            context.rotate(-this.angle);
-            context.translate(-offsetX1, -offsetY1);
-
-            const offsetX2 = shape.x + shape.anchorX;
-            const offsetY2 = shape.y + shape.anchorY;
-            context.translate(offsetX2, offsetY2);
-            context.rotate(shape.angle);
-            context.translate(-offsetX2, -offsetY2);
-
-            context.drawImage(canvas, otherBounds.x, otherBounds.y);
-
-            return this.constructor._isContextBlank(context, otherBounds.width, otherBounds.height);
-        }
-
         containsPoint(x, y) {
             const rotatedPoint = this._rotatePoint(x, y);
 
@@ -893,46 +863,6 @@
             return this.layer(callback, true);
         }
 
-        getBoundingBox() {
-            const bounds = this.getBoundingPoints();
-
-            const top = Math.min(bounds[1], bounds[3], bounds[5], bounds[7]);
-            const right = Math.max(bounds[0], bounds[2], bounds[4], bounds[6])
-            const bottom = Math.max(bounds[1], bounds[3], bounds[5], bounds[7]);
-            const left = Math.min(bounds[0], bounds[2], bounds[4], bounds[6])
-
-            return {
-                top,
-                right,
-                bottom,
-                left,
-                x: left,
-                y: top,
-                width: right - left,
-                height: bottom - top
-            };
-        }
-
-        getBoundingPoints() {
-            const bounds = this.getRenderBox();
-
-            const p1 = this._rotatePoint(bounds.left, bounds.top, 1);
-            const p2 = this._rotatePoint(bounds.right, bounds.top, 1);
-            const p3 = this._rotatePoint(bounds.right, bounds.bottom, 1);
-            const p4 = this._rotatePoint(bounds.left, bounds.bottom, 1);
-
-            return [
-                p1.x,
-                p1.y,
-                p2.x,
-                p2.y,
-                p3.x,
-                p3.y,
-                p4.x,
-                p4.y
-            ];
-        }
-
         getRenderBox() {
             return {
                 top: this._bounding.top + this.y,
@@ -944,43 +874,6 @@
                 width: this._bounding.right - this._bounding.left,
                 height: this._bounding.bottom - this._bounding.top
             };
-        }
-
-        intersects(shape) {
-            if (!this.intersectsBounds(shape)) {
-                return false;
-            }
-
-            const bounds = this.getRenderBox();
-            const otherBounds = shape.getRenderBox();
-
-            const { context } = this.render();
-            const { canvas } = shape.render();
-
-            context.globalCompositeOperation = 'destination-in';
-
-            const offsetX1 = this.x + this.anchorX;
-            const offsetY1 = this.y + this.anchorY;
-            context.translate(offsetX1 - bounds.x, offsetY1 - bounds.y);
-            context.rotate(-this.angle);
-            context.translate(-offsetX1, -offsetY1);
-
-            const offsetX2 = shape.x + shape.anchorX;
-            const offsetY2 = shape.y + shape.anchorY;
-            context.translate(offsetX2, offsetY2);
-            context.rotate(shape.angle);
-            context.translate(-offsetX2, -offsetY2);
-
-            context.drawImage(canvas, otherBounds.x, otherBounds.y);
-
-            return !this.constructor._isContextBlank(context, bounds.width, bounds.height);
-        }
-
-        intersectsBounds(shape) {
-            const bounds = this.getBoundingBox();
-            const otherBounds = shape.getBoundingBox();
-
-            return !(bounds.bottom < otherBounds.top || bounds.left > otherBounds.right || bounds.top > otherBounds.bottom || bounds.right < otherBounds.left);
         }
 
         layer(callback, contour = false) {
@@ -1040,35 +933,11 @@
             return this;
         }
 
-        _boundsOverlap(shape) {
-            const bounds = this.getBoundingPoints();
-            const p1 = shape._rotatePoint(bounds[0], bounds[1]);
-            const p2 = shape._rotatePoint(bounds[2], bounds[3]);
-            const p3 = shape._rotatePoint(bounds[4], bounds[5]);
-            const p4 = shape._rotatePoint(bounds[6], bounds[7]);
-
-            const top = Math.min(p1.y, p2.y, p3.y, p4.y);
-            const right = Math.max(p1.x, p2.x, p3.x, p4.x);
-            const bottom = Math.max(p1.y, p2.y, p3.y, p4.y);
-            const left = Math.min(p1.x, p2.x, p3.x, p4.x);
-
-            const otherBounds = shape.getRenderBox();
-
-            return !(bottom < otherBounds.top || left > otherBounds.right || top > otherBounds.bottom || right < otherBounds.left);
-        }
-
         _rotatePoint(x, y, dir = -1) {
             const anchor = Vector.create(this.x + this.anchorX, this.y + this.anchorY);
             const point = Vector.create(x, y).sub(anchor).rotate(this.angle * dir).add(anchor);
 
             return { x: point.x, y: point.y };
-        }
-
-        static _isContextBlank(context, width, height) {
-            const data = context.getImageData(0, 0, width, height);
-            const buffer = new Uint32Array(data.data.buffer);
-
-            return buffer.every(value => !value);
         }
 
     }

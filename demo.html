@@ -36,41 +36,19 @@
                     .layer(path => {
                         path.triangle(-50, 50, 0, -75, 50, 50);
                     });
-
-                this.mouseShape = this.canvas.createShape()
-                    .layer(path => {
-                        path.vertex(-5, -5)
-                            .vertex(0, -2)
-                            .vertex(5, -5)
-                            .vertex(2, 0)
-                            .vertex(5, 5)
-                            .vertex(0, 2)
-                            .vertex(-5, 5)
-                            .vertex(-2, 0)
-                            .close();
-                    });
             }
 
             update() {
                 const mousePos = this.input.mousePos();
 
-                if (mousePos) {
-                    this.mouseShape.x = mousePos.x;
-                    this.mouseShape.y = mousePos.y;
-                }
-
                 this.shape2.x = this.pos.x;
                 this.shape2.y = this.pos.y;
 
-                const bounds1 = this.shape1.getBoundingBox();
-                const bounds2 = this.shape2.getBoundingBox();
-                const mouseBounds = this.mouseShape.getBoundingBox();
-
-                if (bounds2.top < 0 || bounds2.bottom > 400) {
+                if (this.shape2.y < 0 || this.shape2.y > 400) {
                     this.vel.y *= -1;
                 }
 
-                if (bounds2.left < 0 || bounds2.right > 600) {
+                if (this.shape2.x < 0 || this.shape2.x > 600) {
                     this.vel.x *= -1;
                 }
 
@@ -79,37 +57,22 @@
                 let fill1 = 'rgba(0, 255, 0, .5)';
                 let fill2 = 'rgba(0, 0, 255, .5)';
                 if (mousePos) {
-                    if (this.shape1.intersects(this.mouseShape)) {
+                    if (this.shape1.containsPoint(mousePos.x, mousePos.y)) {
                         fill1 = 'rgba(255, 255, 0, .5)';
                     }
 
-                    if (this.shape2.intersects(this.mouseShape)) {
+                    if (this.shape2.containsPoint(mousePos.x, mousePos.y)) {
                         fill2 = 'rgba(255, 0, 0, .5)';
                     }
                 }
 
                 this.canvas.background('#333');
 
-                this.canvas.noFill();
-                this.canvas.strokeColor('rgba(0, 150, 150, .8)');
-                this.canvas.strokeWidth(1);
-                this.canvas.rect(bounds2.x, bounds2.y, bounds2.width, bounds2.height);
-                this.canvas.rect(bounds1.x, bounds1.y, bounds1.width, bounds1.height);
-
-                if (mousePos) {
-                    this.canvas.rect(mouseBounds.x, mouseBounds.y, mouseBounds.width, mouseBounds.height);
-                }
-
                 this.canvas.noStroke()
                     .fillColor(fill1)
                     .drawShape(this.shape1)
                     .fillColor(fill2)
                     .drawShape(this.shape2);
-
-                if (mousePos) {
-                    this.canvas.fillColor('rgba(255, 255, 255, .5)')
-                        .drawShape(this.mouseShape);
-                }
 
                 this.canvas.fillColor('white')
                     .text('Hello World', 20, 20);
