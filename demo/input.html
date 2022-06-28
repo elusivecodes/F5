@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostCanvas Input</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui/dist/frost-ui.css">
+    <script src="../dist/frost-canvas.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Input</h1>
+
+        <div class="mb-4" id="input"></div>
+    </div>
+
+    <script>
+        class InputSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa');
+            }
+
+            onKeyDown(key) {
+                this._write(`Key Down: ${key}`);
+            }
+
+            onKeyPress(key) {
+                this._write(`Key Press: ${key}`);
+            }
+
+            onKeyUp(key) {
+                this._write(`Key Up: ${key}`);
+            }
+
+            onMouseClick(button) {
+                this._write(`Mouse Click: ${button}`);
+            }
+
+            onMouseDown(button) {
+                this._write(`Mouse Down: ${button}`);
+            }
+
+            onMouseEnter() {
+                this._write('Mouse Enter');
+            }
+
+            onMouseLeave() {
+                this._write('Mouse Leave');
+            }
+
+            onMouseMove(x, y) {
+                this._write(`Mouse Move: ${x} ${y}`);
+            }
+
+            onMouseUp(button) {
+                this._write(`Mouse Up: ${button}`);
+            }
+
+            _write(text) {
+                console.log(text);
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .fontSize('24')
+                    .textAlign('center')
+                    .text(text, 300, 200);
+            }
+
+        }
+
+        const input = document.getElementById('input');
+
+        InputSketch.attach(input);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostCanvas CanvasContext Draw</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui/dist/frost-ui.css">
+    <script src="../../dist/frost-canvas.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Draw</h1>
+
+        <h4>Fill</h4>
+        <div class="mb-4" id="fill"></div>
+
+        <h4>Font</h4>
+        <div class="mb-4" id="font"></div>
+
+        <h4>Font Size</h4>
+        <div class="mb-4" id="fontSize"></div>
+
+        <h4>Font Weight</h4>
+        <div class="mb-4" id="fontWeight"></div>
+
+        <h4>No Fill</h4>
+        <div class="mb-4" id="noFill"></div>
+
+        <h4>No Shadow</h4>
+        <div class="mb-4" id="noShadow"></div>
+
+        <h4>No Stroke</h4>
+        <div class="mb-4" id="noStroke"></div>
+
+        <h4>Shadow Blur</h4>
+        <div class="mb-4" id="shadowBlur"></div>
+
+        <h4>Shadow</h4>
+        <div class="mb-4" id="shadow"></div>
+
+        <h4>Shadow Offset</h4>
+        <div class="mb-4" id="shadowOffset"></div>
+
+        <h4>Stroke</h4>
+        <div class="mb-4" id="stroke"></div>
+
+        <h4>Stroke Width</h4>
+        <div class="mb-4" id="strokeWidth"></div>
+
+        <h4>Text</h4>
+        <div class="mb-4" id="text"></div>
+
+        <h4>Text Align</h4>
+        <div class="mb-4" id="textAlign"></div>
+    </div>
+
+    <script>
+        class FillSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('red')
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class FontSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .font('Times New Roman')
+                    .fontSize('48')
+                    .textAlign('center')
+                    .text('Hello', 300, 200);
+            }
+
+        }
+
+        class FontSizeSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .fontSize('96')
+                    .textAlign('center')
+                    .text('Hello', 300, 200);
+            }
+
+        }
+
+        class FontWeightSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .fontSize('48')
+                    .fontWeight('bold')
+                    .textAlign('center')
+                    .text('Hello', 300, 200);
+            }
+
+        }
+
+        class NoFillSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .noFill()
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class NoStrokeSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('red')
+                    .noStroke()
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class NoShadowSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('red')
+                    .noShadow()
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class ShadowBlurSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .shadowBlur(10)
+                    .shadow('#000')
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class shadowSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .shadowBlur(10)
+                    .shadow('blue')
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class ShadowOffsetSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .shadowBlur(10)
+                    .shadow('#000')
+                    .shadowOffset(10, 10)
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class StrokeSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .stroke('blue')
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class StrokeWidthSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .strokeWidth(5)
+                    .rect(150, 100, 300, 200);
+            }
+
+        }
+
+        class TextSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .fontSize('48')
+                    .textAlign('center')
+                    .text('Hello', 300, 200);
+            }
+
+        }
+
+        class TextAlignSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                this.context
+                    .background('#aaa')
+                    .fill('#000')
+                    .noStroke()
+                    .fontSize('48')
+                    .textAlign('right')
+                    .text('Hello', 300, 200);
+            }
+
+        }
+
+        const fill = document.getElementById('fill');
+        const font = document.getElementById('font');
+        const fontSize = document.getElementById('fontSize');
+        const fontWeight = document.getElementById('fontWeight');
+        const noFill = document.getElementById('noFill');
+        const noShadow = document.getElementById('noShadow');
+        const noStroke = document.getElementById('noStroke');
+        const shadowBlur = document.getElementById('shadowBlur');
+        const shadow = document.getElementById('shadow');
+        const shadowOffset = document.getElementById('shadowOffset');
+        const stroke = document.getElementById('stroke');
+        const strokeWidth = document.getElementById('strokeWidth');
+        const text = document.getElementById('text');
+        const textAlign = document.getElementById('textAlign');
+
+        FillSketch.attach(fill);
+        FontSketch.attach(font);
+        FontSizeSketch.attach(fontSize);
+        FontWeightSketch.attach(fontWeight);
+        NoFillSketch.attach(noFill)
+        NoShadowSketch.attach(noShadow);
+        NoStrokeSketch.attach(noStroke);
+        ShadowBlurSketch.attach(shadowBlur);
+        shadowSketch.attach(shadow);
+        ShadowOffsetSketch.attach(shadowOffset);
+        StrokeSketch.attach(stroke);
+        StrokeWidthSketch.attach(strokeWidth);
+        TextSketch.attach(text);
+        TextAlignSketch.attach(textAlign);
+    </script>
+
+</body>
+
+</html>

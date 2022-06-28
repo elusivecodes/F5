@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostCanvas CanvasContext Gradient</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui/dist/frost-ui.css">
+    <script src="../../dist/frost-canvas.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>Gradient</h1>
+
+        <h4>Linear Gradient</h4>
+        <div class="mb-4" id="linearGradient"></div>
+
+        <h4>Radial Gradient</h4>
+        <div class="mb-4" id="radialGradient"></div>
+    </div>
+
+    <script>
+        class LinearSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                const gradient = this.context.linearGradient(300, 0, 300, 400);
+                gradient.addColorStop(0, 'blue');
+                gradient.addColorStop(.5, 'black');
+                gradient.addColorStop(1, 'red');
+
+                this.context
+                    .fill(gradient)
+                    .rect(0, 0, 600, 400);
+            }
+
+        }
+
+        class RadialSketch extends Canvas {
+
+            setup() {
+                this.noLoop();
+
+                const gradient = this.context.radialGradient(300, 200, 450, 300, 200, 100);
+                gradient.addColorStop(0, 'blue');
+                gradient.addColorStop(.5, 'black');
+                gradient.addColorStop(1, 'red');
+
+                this.context
+                    .fill(gradient)
+                    .rect(0, 0, 600, 400);
+            }
+
+        }
+
+        const linearGradient = document.getElementById('linearGradient');
+        const radialGradient = document.getElementById('radialGradient');
+
+        LinearSketch.attach(linearGradient);
+        RadialSketch.attach(radialGradient);
+    </script>
+</body>
+
+</html>

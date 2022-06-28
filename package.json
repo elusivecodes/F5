@@ -1,0 +1,39 @@
+{
+    "name": "frostcanvas",
+    "version": "1.0.0",
+    "description": "FrostCanvas is a free, open-source canvas library for JavaScript.",
+    "keywords": [
+        "canvas",
+        "context",
+        "graphics",
+        "2d",
+        "animation"
+    ],
+    "homepage": "https://github.com/elusivecodes/FrostCanvas",
+    "bugs": {
+        "url": "https://github.com/elusivecodes/FrostCanvas/issues",
+        "email": "elusivecodes@gmail.com"
+    },
+    "main": "./dist/frost-canvas.js",
+    "files": [
+        "/dist/frost-color.js",
+        "/LICENSE",
+        "/README.md"
+    ],
+    "scripts": {
+        "build": "node build.js",
+        "test": "mocha --recursive"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/elusivecodes/FrostCanvas.git"
+    },
+    "author": "Elusive <elusivecodes@gmail.com>",
+    "license": "MIT",
+    "private": false,
+    "devDependencies": {
+        "filepath": "^1.1.0",
+        "mocha": "^9.0.0",
+        "terser": "^4.8.0"
+    }
+}
