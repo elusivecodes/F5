@@ -224,14 +224,14 @@ class Vector {
      * Parse a Vector or X/Y co-ordinates.
      * @param {Vector|number} x A Vector, or the X position.
      * @param {number} [y] The Y position.
-     * @returns {Vector|object} The Vector or an object with X/Y co-ordinates.
+     * @returns {Vector} The new Vector.
      */
     static _parse(x = 0, y = 0) {
         if (x instanceof Vector) {
             return x;
         }
 
-        return { x, y };
+        return new Vector(x, y);
     }
 
 }

@@ -1654,11 +1654,6 @@
             for (const { contour, path } of this.layers) {
                 let { x: layerX, y: layerY } = path.getBoundingBox();
 
-                if (lineWidth) {
-                    layerX -= lineWidth;
-                    layerY -= lineWidth;
-                }
-
                 let layerOptions;
                 if (contour) {
                     context.globalCompositeOperation = 'destination-out';
@@ -1669,6 +1664,11 @@
                 } else {
                     context.globalCompositeOperation = 'source-over';
                     layerOptions = options;
+
+                    if (lineWidth) {
+                        layerX -= lineWidth;
+                        layerY -= lineWidth;
+                    }
                 }
 
                 const layerCanvas = path.render(layerOptions);
@@ -1737,7 +1737,7 @@
         angleTo(x, y) {
             const other = this.constructor._parse(x, y);
 
-            return Math.atan2(other.y, other.x) - this.getHeading();
+            return other.getHeading() - this.getHeading();
         };
 
         /**
@@ -1923,14 +1923,14 @@
          * Parse a Vector or X/Y co-ordinates.
          * @param {Vector|number} x A Vector, or the X position.
          * @param {number} [y] The Y position.
-         * @returns {Vector|object} The Vector or an object with X/Y co-ordinates.
+         * @returns {Vector} The new Vector.
          */
         static _parse(x = 0, y = 0) {
             if (x instanceof Vector) {
                 return x;
             }
 
-            return { x, y };
+            return new Vector(x, y);
         }
 
     }

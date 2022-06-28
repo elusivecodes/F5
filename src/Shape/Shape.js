@@ -160,11 +160,6 @@ class Shape {
         for (const { contour, path } of this.layers) {
             let { x: layerX, y: layerY } = path.getBoundingBox();
 
-            if (lineWidth) {
-                layerX -= lineWidth;
-                layerY -= lineWidth;
-            }
-
             let layerOptions;
             if (contour) {
                 context.globalCompositeOperation = 'destination-out';
@@ -175,6 +170,11 @@ class Shape {
             } else {
                 context.globalCompositeOperation = 'source-over';
                 layerOptions = options;
+
+                if (lineWidth) {
+                    layerX -= lineWidth;
+                    layerY -= lineWidth;
+                }
             }
 
             const layerCanvas = path.render(layerOptions);
