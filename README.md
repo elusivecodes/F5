@@ -28,7 +28,9 @@ npm i frostcanvas
 In Node.js:
 
 ```javascript
-const { Canvas, Vector } = require('frostcanvas');
+const { JSDOM } = require('jsdom');
+const { window } = new JSDOM('');
+const { Canvas, Vector } = require('frostcanvas')(window);
 ```
 
 
