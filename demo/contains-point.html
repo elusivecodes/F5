@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FrostCanvas Shape Contains Point</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui/dist/frost-ui.css">
-    <script src="../dist/frost-canvas.js"></script>
+    <title>F5 Shape Contains Point</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui@latest/dist/frost-ui.css">
+    <script src="../dist/f5.js"></script>
 </head>
 
 <body>
@@ -17,7 +17,7 @@
     </div>
 
     <script>
-        class ContainsPointSketch extends Canvas {
+        class ContainsPointSketch extends F5.Canvas {
 
             setup() {
                 this.shape = this.context.createShape(0, 0, 0, 300, 200)
@@ -37,7 +37,7 @@
                         path.triangle(260, 225, 300, 150, 340, 225);
                     });
 
-                this.force = Vector.random();
+                this.force = F5.Vector.random();
                 this.rotation = Math.random() / 2 + 0.5;
             }
 

@@ -1,7 +1,7 @@
 {
-    "name": "frostcanvas",
-    "version": "1.0.0",
-    "description": "FrostCanvas is a free, open-source canvas library for JavaScript.",
+    "name": "@fr0st/f5",
+    "version": "2.0.0",
+    "description": "F5 is a free, open-source canvas library for JavaScript.",
     "keywords": [
         "canvas",
         "context",
@@ -9,31 +9,38 @@
         "2d",
         "animation"
     ],
-    "homepage": "https://github.com/elusivecodes/FrostCanvas",
+    "homepage": "https://github.com/elusivecodes/F5",
     "bugs": {
-        "url": "https://github.com/elusivecodes/FrostCanvas/issues",
+        "url": "https://github.com/elusivecodes/F5/issues",
         "email": "elusivecodes@gmail.com"
     },
-    "main": "./dist/frost-canvas.js",
+    "main": "src/index.js",
+    "type": "module",
     "files": [
-        "/dist/frost-color.js",
-        "/LICENSE",
-        "/README.md"
+        "dist",
+        "LICENSE",
+        "README.md",
+        "src"
     ],
     "scripts": {
-        "build": "node build.js",
-        "test": "mocha --recursive"
+        "build": "npm run js-compile && npm run js-minify",
+        "js-compile": "rollup --config",
+        "js-lint": "eslint --ext .js .",
+        "js-minify": "terser --compress passes=2 --mangle --source-map \"content=dist/f5.js.map\" --output dist/f5.min.js dist/f5.js",
+        "test": "mocha"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/elusivecodes/FrostCanvas.git"
+        "url": "https://github.com/elusivecodes/F5.git"
     },
     "author": "Elusive <elusivecodes@gmail.com>",
     "license": "MIT",
     "private": false,
     "devDependencies": {
-        "filepath": "^1.1.0",
-        "mocha": "^9.0.0",
-        "terser": "^4.8.0"
+        "eslint": "^8.56.0",
+        "eslint-config-google": "^0.14.0",
+        "mocha": "^10.2.0",
+        "rollup": "^4.9.5",
+        "terser": "^5.27.0"
     }
 }

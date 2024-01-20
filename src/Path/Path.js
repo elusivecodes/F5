@@ -1,12 +1,10 @@
 /**
  * Path
  */
-class Path {
-
+export default class Path {
     /**
      * New Path constructor.
      * @param {CanvasRenderingContext2D} context The canvas context.
-     * @returns {Canvas} A new Canvas object.
      */
     constructor(context) {
         this._context = context;
@@ -18,7 +16,7 @@ class Path {
             top: Number.POSITIVE_INFINITY,
             right: Number.NEGATIVE_INFINITY,
             bottom: Number.NEGATIVE_INFINITY,
-            left: Number.POSITIVE_INFINITY
+            left: Number.POSITIVE_INFINITY,
         };
     }
 
@@ -26,7 +24,7 @@ class Path {
      * Determine if the path contains a point.
      * @param {number} x The X position.
      * @param {number} y The Y position.
-     * @returns {Boolean} TRUE if the path contains the point, otherwise FALSE.
+     * @return {Boolean} TRUE if the path contains the point, otherwise FALSE.
      */
     containsPoint(x, y) {
         return this._context.isPointInPath(this._path, x, y);
@@ -34,7 +32,7 @@ class Path {
 
     /**
      * Get the bounding box of the path.
-     * @returns {object} The bounding box.
+     * @return {object} The bounding box.
      */
     getBoundingBox() {
         return {
@@ -45,14 +43,14 @@ class Path {
             x: this._bounding.left,
             y: this._bounding.top,
             width: this._bounding.right - this._bounding.left,
-            height: this._bounding.bottom - this._bounding.top
+            height: this._bounding.bottom - this._bounding.top,
         };
     }
 
     /**
      * Render the path.
      * @param {object} options The rendering options.
-     * @returns {HTMLCanvasElement} The rendered canvas.
+     * @return {HTMLCanvasElement} The rendered canvas.
      */
     render(options = {}) {
         let { width, height, x, y } = this.getBoundingBox();
@@ -98,5 +96,4 @@ class Path {
         this._bounding.bottom = Math.max(this._bounding.bottom, ...ys);
         this._bounding.left = Math.min(this._bounding.left, ...xs);
     }
-
 }

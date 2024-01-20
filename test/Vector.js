@@ -1,19 +1,18 @@
-const assert = require('assert');
-const { Vector } = require('../dist/frost-canvas.min')();
+import assert from 'node:assert/strict';
+import Vector from './../src/vector/index.js';
 
 describe('Vector', function() {
-
     describe('#create', function() {
         it('creates a vector', function() {
             const vector = Vector.create(1, 2);
 
             assert.strictEqual(
                 vector.x,
-                1
+                1,
             );
             assert.strictEqual(
                 vector.y,
-                2
+                2,
             );
         });
     });
@@ -45,15 +44,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                3
+                3,
             );
             assert.strictEqual(
                 vector1.y,
-                5
+                5,
             );
             assert.strictEqual(
                 vector1,
-                vector3
+                vector3,
             );
         });
 
@@ -63,15 +62,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                3
+                3,
             );
             assert.strictEqual(
                 vector1.y,
-                5
+                5,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -83,7 +82,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.angleTo(vector2),
-                -0.12435499454676135
+                -0.12435499454676135,
             );
         });
 
@@ -92,7 +91,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector.angleTo(2, 3),
-                -0.12435499454676135
+                -0.12435499454676135,
             );
         });
     });
@@ -104,7 +103,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.distTo(vector2),
-                1.4142135623730951
+                1.4142135623730951,
             );
         });
 
@@ -113,7 +112,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector.distTo(2, 3),
-                1.4142135623730951
+                1.4142135623730951,
             );
         });
     });
@@ -126,15 +125,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                .5
+                .5,
             );
             assert.strictEqual(
                 vector1.y,
-                0.6666666666666666
+                0.6666666666666666,
             );
             assert.strictEqual(
                 vector1,
-                vector3
+                vector3,
             );
         });
 
@@ -144,15 +143,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                .5
+                .5,
             );
             assert.strictEqual(
                 vector1.y,
-                0.6666666666666666
+                0.6666666666666666,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -165,15 +164,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                3
+                3,
             );
             assert.strictEqual(
                 vector1.y,
-                4
+                4,
             );
             assert.strictEqual(
                 vector1,
-                vector3
+                vector3,
             );
         });
 
@@ -183,15 +182,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                3
+                3,
             );
             assert.strictEqual(
                 vector1.y,
-                4
+                4,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -202,7 +201,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector.getHeading(),
-                1.1071487177940904
+                1.1071487177940904,
             );
         });
     });
@@ -213,7 +212,7 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector.getMag(),
-                2.23606797749979
+                2.23606797749979,
             );
         });
     });
@@ -225,11 +224,11 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.getMag(),
-                2
+                2,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
 
@@ -239,11 +238,11 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.getMag(),
-                2.23606797749979
+                2.23606797749979,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -256,15 +255,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                2
+                2,
             );
             assert.strictEqual(
                 vector1.y,
-                6
+                6,
             );
             assert.strictEqual(
                 vector1,
-                vector3
+                vector3,
             );
         });
 
@@ -274,15 +273,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                2
+                2,
             );
             assert.strictEqual(
                 vector1.y,
-                6
+                6,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -290,15 +289,15 @@ describe('Vector', function() {
     describe('#normalize', function() {
         it('normalizes the vector magnitude', function() {
             const vector1 = Vector.create(1, 2);
-            const vector2 = vector1.normalize()
+            const vector2 = vector1.normalize();
 
             assert.strictEqual(
                 vector1.getMag(),
-                1
+                1,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -306,15 +305,15 @@ describe('Vector', function() {
     describe('#rotate', function() {
         it('rotates the vector', function() {
             const vector1 = Vector.create(1, 2);
-            const vector2 = vector1.rotate(0.45)
+            const vector2 = vector1.rotate(0.45);
 
             assert.strictEqual(
                 vector1.getHeading(),
-                1.5571487177940904
+                1.5571487177940904,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -322,15 +321,15 @@ describe('Vector', function() {
     describe('#setHeading', function() {
         it('sets the vector heading', function() {
             const vector1 = Vector.create(1, 2);
-            const vector2 = vector1.setHeading(0.45)
+            const vector2 = vector1.setHeading(0.45);
 
             assert.strictEqual(
                 vector1.getHeading(),
-                0.45
+                0.45,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -338,15 +337,15 @@ describe('Vector', function() {
     describe('#setMag', function() {
         it('sets the vector magnitude', function() {
             const vector1 = Vector.create(1, 2);
-            const vector2 = vector1.setMag(3)
+            const vector2 = vector1.setMag(3);
 
             assert.strictEqual(
                 vector1.getMag(),
-                3
+                3,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
@@ -359,15 +358,15 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                -1
+                -1,
             );
             assert.strictEqual(
                 vector1.y,
-                -1
+                -1,
             );
             assert.strictEqual(
                 vector1,
-                vector3
+                vector3,
             );
         });
 
@@ -377,17 +376,16 @@ describe('Vector', function() {
 
             assert.strictEqual(
                 vector1.x,
-                -1
+                -1,
             );
             assert.strictEqual(
                 vector1.y,
-                -1
+                -1,
             );
             assert.strictEqual(
                 vector1,
-                vector2
+                vector2,
             );
         });
     });
-
 });

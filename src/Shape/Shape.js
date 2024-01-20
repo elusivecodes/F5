@@ -1,8 +1,10 @@
+import Path from './../path/path.js';
+import Vector from './../vector/vector.js';
+
 /**
  * Shape
  */
-class Shape {
-
+export default class Shape {
     /**
      * New Shape constructor.
      * @param {CanvasRenderingContext2D} context The canvas context.
@@ -11,7 +13,6 @@ class Shape {
      * @param {number} [angle=0] The rotation angle.
      * @param {number} [anchorX=0] The anchor X position.
      * @param {number} [anchorY=0] The anchor Y position.
-     * @returns {Shape} A new Shape object.
      */
     constructor(context, x = 0, y = 0, angle = 0, anchorX = 0, anchorY = 0) {
         this._context = context;
@@ -29,7 +30,7 @@ class Shape {
      * Determine if the shape contains a point.
      * @param {number} x The X position.
      * @param {number} y The Y position.
-     * @returns {Boolean} TRUE if the shape contains the point, otherwise FALSE.
+     * @return {Boolean} TRUE if the shape contains the point, otherwise FALSE.
      */
     containsPoint(x, y) {
         const anchor = Vector.create(this.x + this.anchorX, this.y + this.anchorY);
@@ -59,7 +60,7 @@ class Shape {
     /**
      * Add a contour to the shape.
      * @param {callback} callback The callback to generate the path.
-     * @returns {Shape} The Shape.
+     * @return {Shape} The Shape.
      */
     contour(callback) {
         return this.layer(callback, true);
@@ -67,14 +68,14 @@ class Shape {
 
     /**
      * Get the bounding box of the shape.
-     * @returns {object} The bounding box.
+     * @return {object} The bounding box.
      */
     getBoundingBox() {
         const bounding = {
             top: Number.POSITIVE_INFINITY,
             right: Number.NEGATIVE_INFINITY,
             bottom: Number.NEGATIVE_INFINITY,
-            left: Number.POSITIVE_INFINITY
+            left: Number.POSITIVE_INFINITY,
         };
 
         for (const layer of this.layers) {
@@ -102,7 +103,7 @@ class Shape {
             x: bounding.left + this.x,
             y: bounding.top + this.y,
             width: bounding.right - bounding.left,
-            height: bounding.bottom - bounding.top
+            height: bounding.bottom - bounding.top,
         };
     }
 
@@ -110,7 +111,7 @@ class Shape {
      * Add a layer to the shape.
      * @param {callback} callback The callback to generate the path.
      * @param {Boolean} [contour=false] Whether the path is contoured.
-     * @returns {Shape} The Shape.
+     * @return {Shape} The Shape.
      */
     layer(callback, contour = false) {
         const path = new Path(this._context);
@@ -118,7 +119,7 @@ class Shape {
 
         this.layers.push({
             contour,
-            path
+            path,
         });
 
         return this;
@@ -127,7 +128,7 @@ class Shape {
     /**
      * Render the shape.
      * @param {object} options The rendering options.
-     * @returns {HTMLCanvasElement} The rendered canvas.
+     * @return {HTMLCanvasElement} The rendered canvas.
      */
     render(options = {}) {
         const canvas = document.createElement('canvas');
@@ -165,7 +166,7 @@ class Shape {
                 context.globalCompositeOperation = 'destination-out';
                 layerOptions = {
                     ...options,
-                    fillStyle: '#000'
+                    fillStyle: '#000',
                 };
             } else {
                 context.globalCompositeOperation = 'source-over';
@@ -189,7 +190,7 @@ class Shape {
      * Rotate a point around the anchor.
      * @param {number} x The X position.
      * @param {number} y The Y position.
-     * @returns {Vector} The rotated Vector.
+     * @return {Vector} The rotated Vector.
      */
     _rotatePoint(x, y) {
         const anchor = Vector.create(this.anchorX, this.anchorY);
@@ -199,5 +200,4 @@ class Shape {
             .rotate(this.angle)
             .add(anchor);
     }
-
 }

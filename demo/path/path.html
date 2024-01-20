@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FrostCanvas Path</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui/dist/frost-ui.css">
-    <script src="../../dist/frost-canvas.js"></script>
+    <title>F5 Path</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/elusivecodes/frostui@latest/dist/frost-ui.css">
+    <script src="../../dist/f5.js"></script>
 </head>
 
 <body>
@@ -27,7 +27,7 @@
     </div>
 
     <script>
-        class BezierSketch extends Canvas {
+        class BezierSketch extends F5.Canvas {
 
             setup() {
                 this.noLoop();
@@ -52,7 +52,7 @@
 
         }
 
-        class CurveSketch extends Canvas {
+        class CurveSketch extends F5.Canvas {
 
             setup() {
                 this.noLoop();
@@ -76,7 +76,7 @@
 
         }
 
-        class QuadraticSketch extends Canvas {
+        class QuadraticSketch extends F5.Canvas {
 
             setup() {
                 this.noLoop();
@@ -100,7 +100,7 @@
 
         }
 
-        class VertexSketch extends Canvas {
+        class VertexSketch extends F5.Canvas {
 
             setup() {
                 this.noLoop();

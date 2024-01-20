@@ -1,6 +1,6 @@
-# FrostCanvas
+# F5
 
-**FrostCanvas** is a free, open-source canvas library for *JavaScript*.
+**F5** is a free, open-source canvas library for *JavaScript*.
 
 It takes heavy inspiration from **P5**, focusing on 2D animation in a lightweight package.
 
@@ -16,21 +16,19 @@ It takes heavy inspiration from **P5**, focusing on 2D animation in a lightweigh
 **JS**
 
 ```html
-<script type="text/javascript" src="/path/to/frost-canvas.min.js"></script>
+<script type="text/javascript" src="/path/to/f5.min.js"></script>
 ```
 
 **Using NPM**
 
 ```
-npm i frostcanvas
+npm i @fr0st/f5
 ```
 
 In Node.js:
 
 ```javascript
-const { JSDOM } = require('jsdom');
-const { window } = new JSDOM('');
-const { Canvas, Vector } = require('frostcanvas')(window);
+import { Canvas, Vector } from '@fr0st/f5';
 ```
 
 
