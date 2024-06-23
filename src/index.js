@@ -9,5 +9,5 @@ export {
     CanvasContext,
     Path,
     Shape,
-    Vector
+    Vector,
 };
